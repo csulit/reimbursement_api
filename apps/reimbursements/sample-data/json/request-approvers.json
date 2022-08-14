@@ -1,0 +1,44 @@
+{
+  "approvers": [
+    {
+      "order": 1,
+      "approver_id": "12340-abcde",
+      "approved_by": null,
+      "display_name": null,
+      "approver_department": null,
+      "is_approved": false,
+      "skipped": false,
+      "time_stamp": null
+    },
+    {
+      "order": 2,
+      "approver_id": "1234-abcd",
+      "approved_by": null,
+      "display_name": null,
+      "approver_department": null,
+      "is_approved": false,
+      "skipped": false,
+      "time_stamp": null
+    },
+    {
+      "order": 3,
+      "approver_id": "323123",
+      "approved_by": null,
+      "display_name": null,
+      "approver_department": "Payables",
+      "is_approved": false,
+      "skipped": false,
+      "time_stamp": null
+    },
+    {
+      "order": 4,
+      "approver_id": "123123",
+      "approved_by": null,
+      "display_name": null,
+      "approver_department": "Treasury",
+      "is_approved": false,
+      "skipped": false,
+      "time_stamp": null
+    }
+  ]
+}
