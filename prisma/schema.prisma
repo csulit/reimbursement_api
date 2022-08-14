@@ -20,6 +20,7 @@ model User {
   comp_and_ben   ReimbCompAndBen?
   reimbursements Reimbursement[]
   approvers      Json[]
+  bank_accounts  BankAccount[]
   roles          String[]
 
   @@map("users")
@@ -35,7 +36,7 @@ model UserProfile {
   department   String  @db.VarChar(100)
   is_approver  Boolean @default(false)
   user_id      String  @unique
-  user         User    @relation(fields: [user_id], references: [id])
+  user         User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
 }
@@ -45,9 +46,19 @@ model ReimbCompAndBen {
   basic_salary    Float  @default(0.0)
   phone_allowance Float  @default(0.0)
   user_id         String @unique
-  user            User   @relation(fields: [user_id], references: [id])
+  user            User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("reimb_comp_and_ben")
+}
+
+model BankAccount {
+  id             String  @id @default(uuid())
+  bank_name      String  @db.VarChar(50)
+  account_number String  @db.VarChar(50)
+  user_id        String?
+  user           User?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("bank_accounts")
 }
 
 model Reimbursement {
