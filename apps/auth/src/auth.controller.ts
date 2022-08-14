@@ -1,16 +1,29 @@
-import { Controller, Get, Post, Query, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorator/current-user.decorator';
+import { CreateUserDTO } from './dto/create-user.dto';
 import { EmailQueryDTO } from './dto/email.query.dto';
 import JwtAuthGuard from './guards/jwt.guard';
 import { LocalGuard } from './guards/local.guard';
 import UserEntity from './users/entity/user.entity';
+import { UsersService } from './users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {}
 
   @Post('login')
   @UseGuards(LocalGuard)
@@ -21,6 +34,11 @@ export class AuthController {
     await this.authService.login(user, response);
 
     response.send(user);
+  }
+
+  @Post('register')
+  async register(@Body() data: CreateUserDTO) {
+    return this.userService.create(data);
   }
 
   @Get('get-token')

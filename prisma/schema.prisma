@@ -19,7 +19,7 @@ model User {
   profile        UserProfile?
   comp_and_ben   ReimbCompAndBen?
   reimbursements Reimbursement[]
-  approvers      Json
+  approvers      Json?
   bank_accounts  BankAccount[]
   roles          String[]
 

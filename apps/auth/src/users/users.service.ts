@@ -1,16 +1,23 @@
 import { PrismaService } from '@app/common';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { REIMBURSEMENT_QUEUE_SERVICE } from 'apps/reimbursements/src/constant';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDTO } from '../dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    private readonly reimbursementQueueClient: ClientProxy,
+  ) {}
 
   async create(data: CreateUserDTO) {
     const { email, password } = data;
@@ -24,6 +31,10 @@ export class UsersService {
     });
 
     // Call update user information queue here.
+    this.reimbursementQueueClient.emit('update_user_information', {
+      user_id: newUser.id,
+      email,
+    });
 
     return newUser;
   }

@@ -29,7 +29,9 @@ export class ErpQueuesService {
       .then((data) => ({ data, status: 200 }))
       .catch((e) => ({ data: null, status: e.response.status }));
 
-    if (employeeResult.status === 200) {
+    console.log(employee);
+
+    if (employeeResult?.status === 200) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
 
       await this.prisma.userProfile.create({
