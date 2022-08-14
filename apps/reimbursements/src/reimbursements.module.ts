@@ -8,6 +8,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ReimbursementsController } from './reimbursements.controller';
+import { ApproversService } from './services/approvers.service';
 import { ParticularsService } from './services/particulars.service';
 import { ReimbursementsService } from './services/reimbursements.service';
 
@@ -28,6 +29,6 @@ import { ReimbursementsService } from './services/reimbursements.service';
     PrismaModule,
   ],
   controllers: [ReimbursementsController],
-  providers: [ReimbursementsService, ParticularsService],
+  providers: [ReimbursementsService, ParticularsService, ApproversService],
 })
 export class ReimbursementsModule {}
