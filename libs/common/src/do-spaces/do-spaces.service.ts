@@ -27,7 +27,7 @@ export class DoSpacesService {
       }),
     );
 
-    if (error.message) {
+    if (error) {
       throw new BadRequestException(error.message);
     }
 
@@ -50,7 +50,7 @@ export class DoSpacesService {
       }),
     );
 
-    if (error.message) {
+    if (error) {
       throw new BadRequestException(error.message);
     }
 

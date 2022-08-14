@@ -16,10 +16,9 @@ export class ReimbursementsQueuesService {
     const { reimbursement_id } = data;
 
     const [error, record] = await useTryAsync(() =>
-      this.prisma.reimbursement.findUnique({
+      this.prisma.reimbursement.findUniqueOrThrow({
         where: { id: reimbursement_id },
         select: { id: true },
-        rejectOnNotFound: true,
       }),
     );
 

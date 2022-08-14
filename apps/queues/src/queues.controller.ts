@@ -15,10 +15,6 @@ export class QueuesController {
 
   @EventPattern('calculate_total')
   calculateTotal(@Payload() data: CalculateTotal, @Ctx() context: RmqContext) {
-    this.erpQueueService.updateUserInformation(
-      '60769479-10b5-4228-9a12-8f222d981d3f',
-      'christian.sulit@kmc.solutions',
-    );
     this.reimbursementsQueuesService.calculateTotal(data);
     this.rabbitMqService.ack(context);
   }

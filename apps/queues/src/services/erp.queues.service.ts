@@ -14,32 +14,30 @@ export class ErpQueuesService {
   ) {}
 
   async updateUserInformation(user_id: string, email: string) {
-    const employee = this.httpService.get<ErpEmployeeEntity>(
+    const employee = this.httpService.get(
       '/api/employees/reimbursement-validation',
       {
-        baseURL: this.configService.get('ERP_API_KEY'),
+        baseURL: this.configService.get('ERP_HR_BASE_API_URL'),
         params: {
-          api_key: this.configService.get('ERP_HR_BASE_API_URL'),
+          api_key: this.configService.get('ERP_API_KEY'),
           email,
         },
       },
     );
 
     const employeeResult = await firstValueFrom(employee)
-      .then((data) => ({ data, status: 200 }))
-      .catch((e) => ({ data: null, status: e.response.status }));
-
-    console.log(employee);
+      .then((response) => ({ data: response.data, status: 200 }))
+      .catch((e) => ({ data: null, status: e.response?.status ?? 404 }));
 
     if (employeeResult?.status === 200) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
 
       await this.prisma.userProfile.create({
         data: {
-          first_name: erpEmployee.firstName,
-          last_name: erpEmployee.lastName,
-          organization: erpEmployee.client,
-          department: erpEmployee.department,
+          first_name: erpEmployee?.firstName,
+          last_name: erpEmployee?.lastName,
+          organization: erpEmployee?.client,
+          department: erpEmployee?.department,
           user: {
             connect: {
               id: user_id,
