@@ -32,19 +32,29 @@ export class ErpQueuesService {
     if (employeeResult?.status === 200) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
 
-      await this.prisma.userProfile.create({
-        data: {
-          first_name: erpEmployee?.firstName,
-          last_name: erpEmployee?.lastName,
-          organization: erpEmployee?.client,
-          department: erpEmployee?.department,
-          user: {
-            connect: {
-              id: user_id,
-            },
-          },
+      const user = await this.prisma.user.findUnique({
+        where: { id: user_id },
+        select: {
+          profile: true,
+          comp_and_ben: true,
         },
       });
+
+      if (user.profile) {
+        await this.prisma.userProfile.create({
+          data: {
+            first_name: erpEmployee?.firstName,
+            last_name: erpEmployee?.lastName,
+            organization: erpEmployee?.client,
+            department: erpEmployee?.department,
+            user: {
+              connect: {
+                id: user_id,
+              },
+            },
+          },
+        });
+      }
 
       if (erpEmployee?.personalEmail || erpEmployee?.workEmail) {
         await this.prisma.user.update({
@@ -56,17 +66,19 @@ export class ErpQueuesService {
         });
       }
 
-      await this.prisma.reimbCompAndBen.create({
-        data: {
-          basic_salary: erpEmployee?.basicMonthSalary ?? 0,
-          phone_allowance: erpEmployee?.phoneAllowance ?? 0,
-          user: {
-            connect: {
-              id: user_id,
+      if (user.comp_and_ben) {
+        await this.prisma.reimbCompAndBen.create({
+          data: {
+            basic_salary: erpEmployee?.basicMonthSalary ?? 0,
+            phone_allowance: erpEmployee?.phoneAllowance ?? 0,
+            user: {
+              connect: {
+                id: user_id,
+              },
             },
           },
-        },
-      });
+        });
+      }
     }
   }
 
