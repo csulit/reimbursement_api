@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/reimbursements/src",
+  "sourceRoot": "apps/auth/src",
   "monorepo": true,
   "root": "apps/reimbursement-app-api",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/reimbursement-app-api/tsconfig.app.json"
+    "tsConfigPath": "apps/auth/tsconfig.app.json"
   },
   "projects": {
     "auth": {

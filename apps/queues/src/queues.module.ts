@@ -1,4 +1,4 @@
-import { PrismaModule } from '@app/common';
+import { PrismaModule, RabbitMqModule } from '@app/common';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -12,9 +12,13 @@ import { ReimbursementsQueuesService } from './services/reimbursements.queues.se
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({}),
-      envFilePath: ['../queues.dev.env', '../queues.prod.env'],
+      validationSchema: Joi.object({
+        ERP_API_KEY: Joi.string().required(),
+        ERP_HR_BASE_API_URL: Joi.string().required(),
+        ERP_AUTH_BASE_API_URL: Joi.string().required(),
+      }),
     }),
+    RabbitMqModule,
     PrismaModule,
     HttpModule,
   ],

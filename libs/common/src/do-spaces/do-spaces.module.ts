@@ -14,7 +14,6 @@ import { DoSpacesServiceProvider } from './lib/aws-s3';
         SPACES_SECRET_KEY: Joi.string().required(),
         SPACES_BASE_URL: Joi.string().required(),
       }),
-      envFilePath: ['./do-spaces.prod.env'],
     }),
   ],
   providers: [DoSpacesServiceProvider, DoSpacesService],

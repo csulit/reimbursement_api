@@ -3,12 +3,7 @@
 /node_modules
 
 # Env
-.env
-reimbursements.prod.env
-queues.prod.env
-auth.prod.env
-do-spaces.prod.env
-rabbit-mq.prod.env
+*.env
 
 # Logs
 logs

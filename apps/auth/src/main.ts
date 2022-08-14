@@ -1,6 +1,8 @@
-import { PrismaService } from '@app/common';
+import { PrismaService, RabbitMqService } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { RmqOptions } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
@@ -9,6 +11,8 @@ import { AuthModule } from './auth.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
+  const rabbitMqService = app.get<RabbitMqService>(RabbitMqService);
+  const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
 
@@ -25,6 +29,8 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     credentials: true,
   });
+
+  app.connectMicroservice<RmqOptions>(rabbitMqService.getOptions('AUTH', true));
 
   const config = new DocumentBuilder()
     .setTitle('Reimbursement API')
@@ -59,6 +65,8 @@ async function bootstrap() {
 
   prismaClientService.enableShutdownHooks(app);
 
-  await app.listen(3000);
+  await app.startAllMicroservices();
+
+  await app.listen(Number(configService.get('AUTH_PORT')));
 }
 bootstrap();

@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, Observable, tap } from 'rxjs';
-import { AUTH_SERVICE } from './constant';
+import { RMQ_AUTH_SERVICE } from './constant';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(@Inject(AUTH_SERVICE) private authClient: ClientProxy) {}
+  constructor(@Inject(RMQ_AUTH_SERVICE) private authClient: ClientProxy) {}
 
   canActivate(
     context: ExecutionContext,
