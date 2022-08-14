@@ -3,6 +3,7 @@
 /node_modules
 
 # Env
+.env
 reimbursements.prod.env
 queues.prod.env
 auth.prod.env

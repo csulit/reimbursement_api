@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { QueuesService } from './queues.service';
+import { ReimbursementsQueuesService } from './services/reimbursements.queues.service';
 
 @Controller()
 export class QueuesController {
-  constructor(private readonly queuesService: QueuesService) {}
+  constructor(private readonly queuesService: ReimbursementsQueuesService) {}
 
   @Get()
   getHello(): string {

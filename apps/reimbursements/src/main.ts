@@ -2,6 +2,9 @@ import { PrismaService } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
+import * as helmet from 'helmet';
 import { ReimbursementsModule } from './reimbursements.module';
 
 async function bootstrap() {
@@ -37,6 +40,20 @@ async function bootstrap() {
       operationsSorter: 'alpha',
     },
   });
+
+  app.use(cookieParser());
+  app.use(helmet.contentSecurityPolicy());
+  app.use(helmet.dnsPrefetchControl());
+  app.use(helmet.expectCt());
+  app.use(helmet.frameguard());
+  app.use(helmet.hidePoweredBy());
+  app.use(helmet.hsts());
+  app.use(helmet.ieNoOpen());
+  app.use(helmet.noSniff());
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.use(helmet.referrerPolicy());
+  app.use(helmet.xssFilter());
+  app.use(compression());
 
   const prismaClientService: PrismaService = app.get(PrismaService);
 
