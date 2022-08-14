@@ -1,5 +1,6 @@
 import { PrismaService } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
@@ -9,6 +10,7 @@ import { ReimbursementsModule } from './reimbursements.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(ReimbursementsModule);
+  const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
 
@@ -59,6 +61,6 @@ async function bootstrap() {
 
   prismaClientService.enableShutdownHooks(app);
 
-  await app.listen(3000);
+  await app.listen(Number(configService.get('REIMBURSEMENT_PORT')));
 }
 bootstrap();
