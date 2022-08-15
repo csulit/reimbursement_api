@@ -39,6 +39,7 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
 
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
+  @IsOptional()
   readonly is_for_approval?: boolean;
 
   @IsEnum(OrderBy, {
