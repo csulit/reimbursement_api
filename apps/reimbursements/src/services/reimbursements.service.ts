@@ -39,6 +39,7 @@ export class ReimbursementsService {
           }
         : undefined,
       amount_to_be_reimbursed: filter?.amount_to_be_reimbursed,
+      is_for_approval: filter?.is_for_approval,
     };
 
     const reimbursements = await this.prisma.$transaction([

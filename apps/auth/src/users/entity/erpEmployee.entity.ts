@@ -9,7 +9,7 @@ export default class ErpEmployeeEntity {
   position: string;
   client: string;
   clientID: string;
-  basicMonthSalary: number;
+  basicMonthlySalary: number;
   deminimis: number;
   reimbursable: number;
   taxableAllowance: number;

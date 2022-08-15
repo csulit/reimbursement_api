@@ -1,8 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { PaginateDTO } from 'apps/shared/dto/paginate.dto';
 import { Sort } from 'apps/shared/enum/sort.enum';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
@@ -35,6 +36,10 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
   @Type(() => Number)
   @IsOptional()
   readonly amount_to_be_reimbursed?: number;
+
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  readonly is_for_approval?: boolean;
 
   @IsEnum(OrderBy, {
     message: 'Options: id, ap_no, status, filing_date, crediting_date',
