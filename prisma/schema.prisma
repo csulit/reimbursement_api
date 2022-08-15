@@ -62,22 +62,24 @@ model BankAccount {
 }
 
 model Reimbursement {
-  id                      String       @id @default(uuid())
-  user_id                 String
-  user                    User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  ap_no                   String?
-  batch_no                Int          @default(0)
-  particulars             Particular[]
-  status                  String?      @default("Created")
-  filing_date             DateTime     @db.Date
-  crediting_date          DateTime?    @db.Date
-  total_expense           Float        @default(0.0)
-  amount_to_be_reimbursed Float        @default(0.0)
-  is_for_approval         Boolean      @default(false)
-  approval_stage_date     DateTime?
-  approvers               Json[]
-  next_approver           Int          @default(1)
-  created_at              DateTime     @default(now())
+  id                       String       @id @default(uuid())
+  user_id                  String
+  user                     User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  ap_no                    String?
+  batch_no                 Int          @default(0)
+  particulars              Particular[]
+  status                   String?      @default("Created")
+  filing_date              DateTime     @db.Date
+  crediting_date           DateTime?    @db.Date
+  total_expense            Float        @default(0.0)
+  amount_to_be_reimbursed  Float        @default(0.0)
+  is_for_approval          Boolean      @default(false)
+  approval_stage_date      DateTime?
+  approvers                Json[]
+  next_approver            Int          @default(1)
+  next_approver_id         String?
+  next_approver_department String?
+  created_at               DateTime     @default(now())
 
   @@map("reimbursements")
 }

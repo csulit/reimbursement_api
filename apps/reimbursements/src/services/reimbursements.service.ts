@@ -40,6 +40,8 @@ export class ReimbursementsService {
         : undefined,
       amount_to_be_reimbursed: filter?.amount_to_be_reimbursed,
       is_for_approval: filter?.is_for_approval,
+      next_approver_id: filter?.next_approver_id,
+      next_approver_department: filter?.next_approver_department,
     };
 
     const reimbursements = await this.prisma.$transaction([
@@ -60,6 +62,8 @@ export class ReimbursementsService {
           approval_stage_date: true,
           approvers: true,
           next_approver: true,
+          next_approver_id: true,
+          next_approver_department: true,
           particulars: {
             select: {
               id: true,
@@ -116,6 +120,8 @@ export class ReimbursementsService {
         approval_stage_date: true,
         approvers: true,
         next_approver: true,
+        next_approver_id: true,
+        next_approver_department: true,
         particulars: {
           select: {
             id: true,
@@ -167,6 +173,8 @@ export class ReimbursementsService {
         approval_stage_date: true,
         approvers: true,
         next_approver: true,
+        next_approver_id: true,
+        next_approver_department: true,
         particulars: {
           select: {
             id: true,

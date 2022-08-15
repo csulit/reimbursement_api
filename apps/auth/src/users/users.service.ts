@@ -27,7 +27,15 @@ export class UsersService {
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await this.prisma.user.create({
-      data: { name: email, personal_email: email, password: encryptedPassword },
+      data: {
+        name: email,
+        personal_email: email,
+        password: encryptedPassword,
+        approvers: {
+          order: 1,
+          list: [],
+        },
+      },
     });
 
     // Call update user information queue here.

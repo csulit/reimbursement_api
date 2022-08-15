@@ -7,13 +7,29 @@ import { UpdateApproverDTO } from '../dto/update-approver.dto';
 export class ApproversService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async updateApprover(user_id: string, data: UpdateApproverDTO) {
+  async updateApprovers(user_id: string, data: UpdateApproverDTO) {
     return await this.prisma.user.update({
       where: { id: user_id },
       data: {
         approvers: {
           order: 1,
           ...(data as unknown as Prisma.JsonObject),
+        },
+      },
+      select: {
+        id: true,
+        approvers: true,
+      },
+    });
+  }
+
+  async removeApprovers(user_id: string) {
+    return await this.prisma.user.update({
+      where: { id: user_id },
+      data: {
+        approvers: {
+          order: 1,
+          list: [],
         },
       },
       select: {
