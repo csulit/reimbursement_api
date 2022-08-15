@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { catchError, Observable, tap } from 'rxjs';
 import { RMQ_AUTH_SERVICE } from './constant';
 
@@ -27,7 +28,7 @@ export class JwtAuthGuard implements CanActivate {
           this.addUser(res, context);
         }),
         catchError(() => {
-          throw new UnauthorizedException();
+          throw new UnauthorizedException('Invalid access token');
         }),
       );
   }
@@ -52,7 +53,7 @@ export class JwtAuthGuard implements CanActivate {
     return authentication;
   }
 
-  private addUser(user: any, context: ExecutionContext) {
+  private addUser(user: UserEntity, context: ExecutionContext) {
     if (context.getType() === 'rpc') {
       context.switchToRpc().getData().user = user;
     } else if (context.getType() === 'http') {

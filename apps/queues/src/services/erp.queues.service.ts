@@ -34,16 +34,6 @@ export class ErpQueuesService {
     if (employeeResult?.status === 200) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
 
-      console.log(erpEmployee);
-
-      // const user = await this.prisma.user.findUnique({
-      //   where: { id: user_id },
-      //   select: {
-      //     profile: true,
-      //     comp_and_ben: true,
-      //   },
-      // });
-
       await this.prisma.userProfile.create({
         data: {
           first_name: erpEmployee?.firstName,

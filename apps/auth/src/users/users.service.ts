@@ -60,6 +60,7 @@ export class UsersService {
         provider_id: true,
         roles: true,
         permissions: true,
+        approvers: true,
         profile: {
           select: {
             id: true,
@@ -105,6 +106,7 @@ export class UsersService {
         provider_id: true,
         roles: true,
         permissions: true,
+        approvers: true,
         profile: {
           select: {
             id: true,
@@ -188,8 +190,12 @@ export class UsersService {
     }
   }
 
-  async createBankDetails(data: CreateBankDetailsDTO) {
-    const { user_id, bank_name, account_number } = data;
+  async getBankDetails(user_id: string) {
+    return await this.prisma.bankAccount.findMany({ where: { user_id } });
+  }
+
+  async createBankDetails(user_id: string, data: CreateBankDetailsDTO) {
+    const { bank_name, account_number } = data;
 
     return await this.prisma.bankAccount.create({
       data: {
@@ -219,6 +225,10 @@ export class UsersService {
         account_number: true,
       },
     });
+  }
+
+  async deleteBankDetails(id: string) {
+    return await this.prisma.bankAccount.delete({ where: { id } });
   }
 
   async updateAccountInformation() {

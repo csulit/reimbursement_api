@@ -45,12 +45,12 @@ export class AuthController {
   @Get('get-token')
   generateJwt(
     @Query() query: EmailQueryDTO,
-    @Req() req: Request,
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
     return this.authService.getToken(
       query.email,
-      req.header('api_key'),
+      request.header('api_key'),
       response,
     );
   }

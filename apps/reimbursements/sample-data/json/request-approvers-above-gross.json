@@ -2,8 +2,7 @@
   "approvers": [
     {
       "order": 1,
-      "list": [],
-      "approved_by": null,
+      "approver_email": null,
       "display_name": null,
       "approver_department": null,
       "executive_level": false,
@@ -13,8 +12,7 @@
     },
     {
       "order": 2,
-      "list": [],
-      "approved_by": null,
+      "approver_email": null,
       "display_name": null,
       "approver_department": null,
       "executive_level": true,
@@ -24,9 +22,8 @@
     },
     {
       "order": 3,
-      "list": ["3aea6d9c-60f9-40c6-b64d-7c12606b6813"],
-      "approved_by": null,
-      "display_name": null,
+      "approver_email": "marie.montiflor@kmc.solutions",
+      "display_name": "Marie Josephine Montiflor",
       "approver_department": "FINANCE - PAYABLES",
       "executive_level": false,
       "is_approved": false,
@@ -35,9 +32,8 @@
     },
     {
       "order": 4,
-      "list": ["282d39d3-f2d9-424e-93f0-70c3d7278baf"],
-      "approved_by": null,
-      "display_name": null,
+      "approver_email": "lovelyn.samadan@kmc.solutions",
+      "display_name": "Lovelyn Samadan",
       "approver_department": "FINANCE - TREASURY",
       "executive_level": false,
       "is_approved": false,

@@ -1,9 +1,6 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateBankDetailsDTO {
-  @IsUUID()
-  readonly user_id: string;
-
   @IsString()
   @IsNotEmpty()
   readonly bank_name: string;

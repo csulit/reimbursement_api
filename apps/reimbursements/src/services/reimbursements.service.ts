@@ -59,11 +59,28 @@ export class ReimbursementsService {
           total_expense: true,
           amount_to_be_reimbursed: true,
           is_for_approval: true,
-          approval_stage_date: true,
+          default_first_approver: true,
           approvers: true,
           next_approver: true,
           next_approver_id: true,
           next_approver_department: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              personal_email: true,
+              work_email: true,
+              profile: {
+                select: {
+                  first_name: true,
+                  last_name: true,
+                  department: true,
+                  organization: true,
+                  is_internal: true,
+                },
+              },
+            },
+          },
           particulars: {
             select: {
               id: true,
@@ -117,7 +134,7 @@ export class ReimbursementsService {
         total_expense: true,
         amount_to_be_reimbursed: true,
         is_for_approval: true,
-        approval_stage_date: true,
+        default_first_approver: true,
         approvers: true,
         next_approver: true,
         next_approver_id: true,
@@ -150,7 +167,7 @@ export class ReimbursementsService {
   }
 
   async create(user_id: string, data: CreateReimbursementDTO) {
-    const { filing_date } = data;
+    const { filing_date, default_first_approver } = data;
 
     const batch_no = new Date(Date.now()).getDate() <= 15 ? 1 : 2;
 
@@ -158,6 +175,7 @@ export class ReimbursementsService {
       data: {
         batch_no,
         filing_date: new Date(filing_date),
+        default_first_approver,
         user_id,
       },
       select: {
@@ -170,7 +188,7 @@ export class ReimbursementsService {
         total_expense: true,
         amount_to_be_reimbursed: true,
         is_for_approval: true,
-        approval_stage_date: true,
+        default_first_approver: true,
         approvers: true,
         next_approver: true,
         next_approver_id: true,

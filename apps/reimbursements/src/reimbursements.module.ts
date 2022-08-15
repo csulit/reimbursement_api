@@ -6,6 +6,7 @@ import {
 } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from 'apps/auth/src/users/users.module';
 import * as Joi from 'joi';
 import { ReimbursementsController } from './reimbursements.controller';
 import { ApproversService } from './services/approvers.service';
@@ -25,6 +26,10 @@ import { ReimbursementsService } from './services/reimbursements.service';
       name: 'REIMBURSEMENT',
     }),
     AuthModule,
+
+    // Remove soon.
+    UsersModule,
+
     DoSpacesModule,
     PrismaModule,
   ],

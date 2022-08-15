@@ -19,7 +19,7 @@ model User {
   profile        UserProfile?
   comp_and_ben   ReimbCompAndBen?
   reimbursements Reimbursement[]
-  approvers      Json?
+  approvers      String[]
   bank_accounts  BankAccount[]
   roles          String[]
   permissions    String[]
@@ -76,11 +76,12 @@ model Reimbursement {
   total_expense            Float        @default(0.0)
   amount_to_be_reimbursed  Float        @default(0.0)
   is_for_approval          Boolean      @default(false)
-  approval_stage_date      DateTime?
+  default_first_approver   String?      @db.VarChar(100)
   approvers                Json[]
   next_approver            Int          @default(1)
   next_approver_id         String?      @db.VarChar(100)
   next_approver_department String?      @db.VarChar(100)
+  logs                     Json[]
   created_at               DateTime     @default(now())
 
   @@map("reimbursements")
