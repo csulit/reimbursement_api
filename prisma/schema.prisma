@@ -22,6 +22,7 @@ model User {
   approvers      Json?
   bank_accounts  BankAccount[]
   roles          String[]
+  permissions    String[]
 
   @@map("users")
 }
@@ -34,6 +35,7 @@ model UserProfile {
   organization String  @default("KMCC") @db.VarChar(100)
   account_code String? @db.VarChar(100)
   department   String  @db.VarChar(100)
+  is_execom    Boolean @default(false)
   is_approver  Boolean @default(false)
   user_id      String  @unique
   user         User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -55,7 +57,7 @@ model BankAccount {
   id             String  @id @default(uuid())
   bank_name      String  @db.VarChar(50)
   account_number String  @db.VarChar(50)
-  user_id        String?
+  user_id        String? @db.VarChar(100)
   user           User?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("bank_accounts")
@@ -77,8 +79,8 @@ model Reimbursement {
   approval_stage_date      DateTime?
   approvers                Json[]
   next_approver            Int          @default(1)
-  next_approver_id         String?
-  next_approver_department String?
+  next_approver_id         String?      @db.VarChar(100)
+  next_approver_department String?      @db.VarChar(100)
   created_at               DateTime     @default(now())
 
   @@map("reimbursements")
@@ -86,22 +88,42 @@ model Reimbursement {
 
 model Particular {
   id                        String         @id @default(uuid())
-  name                      String
+  name                      String         @db.VarChar(100)
   justification_and_purpose String
   OR_date                   DateTime       @db.Date
-  ORN                       String?
-  department                String?
-  location                  String?
-  type_of_expense           String
+  ORN                       String?        @db.VarChar(100)
+  department                String?        @db.VarChar(100)
+  location                  String?        @db.VarChar(100)
+  type_of_expense           String         @db.VarChar(100)
   vat                       Boolean        @default(false)
   total                     Float
   file_url                  String?
   file_name                 String?        @unique
   created_at                DateTime       @default(now())
-  reimbursement_id          String?
+  reimbursement_id          String?        @db.VarChar(255)
   reimbursement             Reimbursement? @relation(fields: [reimbursement_id], references: [id], onDelete: Cascade)
 
   @@map("particulars")
+}
+
+model ApproverConfig {
+  id        String @id @default(uuid())
+  name      String @db.VarChar(100)
+  flow      String
+  condition String
+  scope     String @default("Internal")
+  order     Json[]
+
+  @@map("approver_configs")
+}
+
+model Apikey {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  revoked     Boolean  @default(false)
+  date_issued DateTime @default(now())
+
+  @@map("api_keys")
 }
 
 model Department {

@@ -9,7 +9,9 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { REIMBURSEMENT_QUEUE_SERVICE } from 'apps/reimbursements/src/constant';
 import * as bcrypt from 'bcrypt';
+import { CreateBankDetailsDTO } from '../dto/create-bank-details.dto';
 import { CreateUserDTO } from '../dto/create-user.dto';
+import { UpdateBankDetailsDTO } from '../dto/update-bank-details.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,7 +40,6 @@ export class UsersService {
       },
     });
 
-    // Call update user information queue here.
     this.reimbursementQueueClient.emit('update_user_information', {
       user_id: newUser.id,
       email,
@@ -58,12 +59,14 @@ export class UsersService {
         provider: true,
         provider_id: true,
         roles: true,
+        permissions: true,
         profile: {
           select: {
             id: true,
             first_name: true,
             last_name: true,
             is_approver: true,
+            is_execom: true,
             department: true,
             account_code: true,
             is_internal: true,
@@ -101,12 +104,14 @@ export class UsersService {
         provider: true,
         provider_id: true,
         roles: true,
+        permissions: true,
         profile: {
           select: {
             id: true,
             first_name: true,
             last_name: true,
             is_approver: true,
+            is_execom: true,
             department: true,
             account_code: true,
             is_internal: true,
@@ -150,6 +155,7 @@ export class UsersService {
         provider: true,
         provider_id: true,
         roles: true,
+        permissions: true,
         password: true,
       },
     });
@@ -180,5 +186,42 @@ export class UsersService {
     if (user) {
       throw new BadRequestException('User already exists.');
     }
+  }
+
+  async createBankDetails(data: CreateBankDetailsDTO) {
+    const { user_id, bank_name, account_number } = data;
+
+    return await this.prisma.bankAccount.create({
+      data: {
+        bank_name,
+        account_number,
+        user: {
+          connect: {
+            id: user_id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        bank_name: true,
+        account_number: true,
+      },
+    });
+  }
+
+  async updateBankDetails(id: string, data: UpdateBankDetailsDTO) {
+    return await this.prisma.bankAccount.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        bank_name: true,
+        account_number: true,
+      },
+    });
+  }
+
+  async updateAccountInformation() {
+    return true;
   }
 }

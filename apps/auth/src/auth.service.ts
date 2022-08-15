@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@app/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
@@ -11,6 +12,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async login(user: UserEntity, response: Response) {
@@ -31,7 +33,23 @@ export class AuthService {
     });
   }
 
-  async getToken(email: string, response: Response) {
+  async getToken(email: string, api_key: string, response: Response) {
+    if (!api_key) {
+      throw new UnauthorizedException('API key not found!');
+    }
+
+    const key = await this.prisma.apikey.findUnique({
+      where: { key: api_key },
+    });
+
+    if (!key) {
+      throw new UnauthorizedException('Invalid API key!');
+    }
+
+    if (key.revoked) {
+      throw new UnauthorizedException('API key has been revoked!');
+    }
+
     const expires = new Date(Date.now());
 
     const user = await this.usersService.byEmail(email);

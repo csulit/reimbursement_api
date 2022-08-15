@@ -6,4 +6,5 @@ export default class UserEntity {
   provider: string | null;
   provider_id: string | null;
   roles: string[];
+  permissions: string[];
 }

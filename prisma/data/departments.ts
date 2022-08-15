@@ -16,8 +16,8 @@ const departments = [
     code: 'GM',
   },
   {
-    name: 'IT management',
-    code: 'IT',
+    name: 'Technology services',
+    code: 'TSIT',
   },
   {
     name: 'Legal and compliance',
@@ -33,7 +33,7 @@ const departments = [
   },
   {
     name: 'People and culture',
-    code: 'PC',
+    code: 'P&C',
   },
   {
     name: 'Project management and design',
