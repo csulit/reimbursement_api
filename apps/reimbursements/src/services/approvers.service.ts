@@ -1,8 +1,10 @@
 import { PrismaService } from '@app/common';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { UsersService } from 'apps/auth/src/users/users.service';
 import { useTryAsync } from 'no-try';
+import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { SignRequestDTO } from '../dto/sign-request.dto';
 import { UpdateApproverDTO } from '../dto/update-approver.dto';
 import { ReimbursementsService } from './reimbursements.service';
@@ -13,6 +15,8 @@ export class ApproversService {
     private readonly prisma: PrismaService,
     private readonly reimbursementsService: ReimbursementsService,
     private readonly usersService: UsersService,
+    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    private readonly reimbursementQueueClient: ClientProxy,
   ) {}
 
   async updateApprovers(user_id: string, data: UpdateApproverDTO) {
@@ -80,6 +84,9 @@ export class ApproversService {
     const department = approver_details?.profile?.department ?? '';
 
     // Send email here.
+    this.reimbursementQueueClient.emit('send_email', {
+      email: 'christian.sulit@kmc.solutions',
+    });
 
     if (request.total_expense < requestor.comp_and_ben.basic_salary) {
       const approver_config = (await this.defaultApproverConfig()).order;

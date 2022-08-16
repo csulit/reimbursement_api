@@ -23,7 +23,7 @@ export class ReimbursementsService {
     const { page, limit, skip } = paginate(filter?.page, filter?.limit);
 
     const reimbursementWhereInput: Prisma.ReimbursementWhereInput = {
-      user: { id: user.id },
+      user: { id: user?.profile.is_approver ? undefined : user.id },
       ap_no: filter?.ap_no,
       status: filter?.status,
       filing_date: filter?.filing_date
@@ -214,10 +214,6 @@ export class ReimbursementsService {
     });
 
     return newRecord;
-  }
-
-  async updateApprover() {
-    return true;
   }
 
   async getDepartments() {

@@ -27,4 +27,20 @@ export class QueuesController {
     this.erpQueueService.updateUserInformation(data.user_id, data.email);
     this.rabbitMqService.ack(context);
   }
+
+  @EventPattern('send_email')
+  sendEmail(
+    @Payload() data: { email: string; body: string },
+    @Ctx() context: RmqContext,
+  ) {
+    const { email, body } = data;
+
+    this.erpQueueService.sendEmail({
+      to: email,
+      subject: 'Test',
+      body,
+    });
+
+    this.rabbitMqService.ack(context);
+  }
 }

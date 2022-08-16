@@ -5,6 +5,7 @@ export default class UserEntity {
   work_email: string | null;
   provider: string | null;
   provider_id: string | null;
+  profile: { is_approver: boolean };
   roles: string[];
   permissions: string[];
 }

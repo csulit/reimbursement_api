@@ -33,10 +33,7 @@ export class UsersService {
         name: email,
         personal_email: email,
         password: encryptedPassword,
-        approvers: {
-          order: 1,
-          list: [],
-        },
+        approvers: [],
       },
     });
 
