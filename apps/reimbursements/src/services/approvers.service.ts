@@ -83,9 +83,9 @@ export class ApproversService {
 
     const department = approver_details?.profile?.department ?? '';
 
-    // Send email here.
     this.reimbursementQueueClient.emit('send_email', {
       email: 'christian.sulit@kmc.solutions',
+      body: 'Test',
     });
 
     if (request.total_expense < requestor.comp_and_ben.basic_salary) {
@@ -98,6 +98,7 @@ export class ApproversService {
       const new_record = await this.prisma.reimbursement.update({
         where: { id },
         data: {
+          status: 'For Approval',
           is_for_approval: true,
           approvers: approver_config,
           next_approver: 1,
