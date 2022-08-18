@@ -52,6 +52,11 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
   @IsOptional()
   readonly next_approver_department?: string;
 
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  @IsOptional()
+  readonly show_requestor?: boolean;
+
   @IsEnum(OrderBy, {
     message: 'Options: id, ap_no, status, filing_date, crediting_date',
   })

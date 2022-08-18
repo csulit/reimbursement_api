@@ -26,6 +26,7 @@ import { Request } from 'express';
 import { CreateParticularDTO } from './dto/create-particular.dto';
 import { CreateReimbursementDTO } from './dto/create-reimbursement.dto';
 import { GetAllReimbursementsFilterDTO } from './dto/get-all-reimbursements.dto';
+import { GetOneOptionalFilterDTO } from './dto/get-one-optional-filter.dto';
 import { SendToApproverDTO } from './dto/send-to-approver.dto';
 import { SignRequestDTO } from './dto/sign-request.dto';
 import { UpdateApproverDTO } from './dto/update-approver.dto';
@@ -185,7 +186,8 @@ export class ReimbursementsController {
   @Get(':reimbursement_id')
   getOneReimbursement(
     @Param('reimbursement_id', new ParseUUIDPipe()) reimbursement_id: string,
+    @Query() query: GetOneOptionalFilterDTO,
   ) {
-    return this.reimbursementsService.getOne(reimbursement_id);
+    return this.reimbursementsService.getOne(reimbursement_id, query);
   }
 }

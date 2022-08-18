@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import ErpEmployeeEntity from 'apps/auth/src/users/entity/erpEmployee.entity';
+import { toTitleCase } from 'apps/shared/utils/to-title-case';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -31,15 +32,16 @@ export class ErpQueuesService {
 
     console.log(`${employeeResult?.status} - ${email}`);
 
-    if (employeeResult?.status === 200) {
+    if (employeeResult?.status === 200 && employeeResult?.data) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
 
       await this.prisma.userProfile.create({
         data: {
-          first_name: erpEmployee?.firstName,
-          last_name: erpEmployee?.lastName,
-          organization: erpEmployee?.client,
-          department: erpEmployee?.department,
+          first_name: toTitleCase(erpEmployee?.firstName),
+          last_name: toTitleCase(erpEmployee?.lastName),
+          organization: toTitleCase(erpEmployee?.client),
+          department: toTitleCase(erpEmployee?.department),
+          position: toTitleCase(erpEmployee?.position),
           user: {
             connect: {
               id: user_id,

@@ -1,5 +1,11 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 export class SignRequestDTO {
   @IsUUID()
@@ -16,6 +22,10 @@ export class SignRequestDTO {
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
   readonly skipped: boolean;
+
+  @IsEmail()
+  @IsOptional()
+  readonly new_approver_email?: string;
 
   @IsBoolean()
   @Transform(({ value }) => value === 'true')

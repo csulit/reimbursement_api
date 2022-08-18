@@ -8,6 +8,7 @@ import paginate from 'apps/shared/utils/paginate.utils';
 import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CreateReimbursementDTO } from '../dto/create-reimbursement.dto';
 import { GetAllReimbursementsFilterDTO } from '../dto/get-all-reimbursements.dto';
+import { GetOneOptionalFilterDTO } from '../dto/get-one-optional-filter.dto';
 import { OrderBy } from '../enum/order-by.enum';
 
 @Injectable()
@@ -64,23 +65,25 @@ export class ReimbursementsService {
           next_approver: true,
           next_approver_id: true,
           next_approver_department: true,
-          user: {
-            select: {
-              id: true,
-              name: true,
-              personal_email: true,
-              work_email: true,
-              profile: {
+          user: filter?.show_requestor
+            ? {
                 select: {
-                  first_name: true,
-                  last_name: true,
-                  department: true,
-                  organization: true,
-                  is_internal: true,
+                  id: true,
+                  name: true,
+                  personal_email: true,
+                  work_email: true,
+                  profile: {
+                    select: {
+                      first_name: true,
+                      last_name: true,
+                      department: true,
+                      organization: true,
+                      is_internal: true,
+                    },
+                  },
                 },
-              },
-            },
-          },
+              }
+            : false,
           particulars: {
             select: {
               id: true,
@@ -98,7 +101,7 @@ export class ReimbursementsService {
               total: true,
             },
             orderBy: {
-              id: 'desc',
+              created_at: 'desc',
             },
           },
         },
@@ -121,7 +124,7 @@ export class ReimbursementsService {
     };
   }
 
-  async getOne(reimbursement_id: string) {
+  async getOne(reimbursement_id: string, filter?: GetOneOptionalFilterDTO) {
     const reimbursement = await this.prisma.reimbursement.findUnique({
       where: { id: reimbursement_id },
       select: {
@@ -139,6 +142,25 @@ export class ReimbursementsService {
         next_approver: true,
         next_approver_id: true,
         next_approver_department: true,
+        user: filter?.show_requestor
+          ? {
+              select: {
+                id: true,
+                name: true,
+                personal_email: true,
+                work_email: true,
+                profile: {
+                  select: {
+                    first_name: true,
+                    last_name: true,
+                    department: true,
+                    organization: true,
+                    is_internal: true,
+                  },
+                },
+              },
+            }
+          : false,
         particulars: {
           select: {
             id: true,
@@ -154,6 +176,9 @@ export class ReimbursementsService {
             file_name: true,
             vat: true,
             total: true,
+          },
+          orderBy: {
+            created_at: 'desc',
           },
         },
       },
@@ -208,6 +233,9 @@ export class ReimbursementsService {
             file_name: true,
             vat: true,
             total: true,
+          },
+          orderBy: {
+            created_at: 'desc',
           },
         },
       },

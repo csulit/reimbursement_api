@@ -137,7 +137,7 @@ export class ApproversService {
               total: true,
             },
             orderBy: {
-              id: 'desc',
+              created_at: 'desc',
             },
           },
         },
@@ -198,7 +198,7 @@ export class ApproversService {
             total: true,
           },
           orderBy: {
-            id: 'desc',
+            created_at: 'desc',
           },
         },
       },
@@ -210,7 +210,15 @@ export class ApproversService {
   async signRequest(data: SignRequestDTO, user: UserEntity) {
     const { id, order, signer_index, is_approved, skipped } = data;
 
+    if (is_approved && skipped) {
+      throw new BadRequestException('You approved and you skipped. Amazing...');
+    }
+
     const request = await this.reimbursementsService.getOne(id);
+
+    if (request.amount_to_be_reimbursed <= 0) {
+      throw new BadRequestException('Request total amount is 0!');
+    }
 
     const approvers = request.approvers;
 
@@ -225,16 +233,19 @@ export class ApproversService {
     }
 
     approvers[signer_index]['is_approved'] = is_approved;
-    approvers[signer_index]['skipped'] = skipped;
     approvers[signer_index]['time_stamp'] = new Date(Date.now());
 
     const next_approver = approvers[order];
 
     if (skipped) {
-      // Send email to requestor.
+      if (!data?.new_approver_email) {
+        throw new BadRequestException('New approver email field is empty!');
+      }
+
+      // Send email to requestor and to the new approver.
     }
 
-    if (next_approver) {
+    if (next_approver && is_approved) {
       const next_approver_email = approvers[order]['approver_email'];
 
       const [error, approver_details] = await useTryAsync(() =>
@@ -258,9 +269,13 @@ export class ApproversService {
       // Send email here to the next approver.
     }
 
+    if (!is_approved) {
+      // Send email here to the requestor.
+    }
+
     return {
       message: 'Success',
-      sent_to_next_approver: next_approver ? true : false,
+      sent_to_next_approver: next_approver && is_approved ? true : false,
     };
   }
 }

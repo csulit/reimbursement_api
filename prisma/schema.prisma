@@ -35,6 +35,7 @@ model UserProfile {
   organization String  @default("KMCC") @db.VarChar(100)
   account_code String? @db.VarChar(100)
   department   String  @db.VarChar(100)
+  position     String? @db.VarChar(100)
   is_execom    Boolean @default(false)
   is_approver  Boolean @default(false)
   user_id      String  @unique

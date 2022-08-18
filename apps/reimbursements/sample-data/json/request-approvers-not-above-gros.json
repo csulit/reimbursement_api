@@ -7,7 +7,6 @@
       "approver_department": null,
       "executive_level": false,
       "is_approved": false,
-      "skipped": false,
       "time_stamp": null
     },
     {
@@ -17,7 +16,6 @@
       "approver_department": "FINANCE - PAYABLES",
       "executive_level": false,
       "is_approved": false,
-      "skipped": false,
       "time_stamp": null
     },
     {
@@ -27,7 +25,6 @@
       "approver_department": "FINANCE - TREASURY",
       "executive_level": false,
       "is_approved": false,
-      "skipped": false,
       "time_stamp": null
     }
   ]
