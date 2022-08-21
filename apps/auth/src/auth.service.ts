@@ -70,7 +70,11 @@ export class AuthService {
       expires,
     });
 
-    return { user, token };
+    return {
+      user,
+      token,
+      expires,
+    };
   }
 
   logout(response: Response) {

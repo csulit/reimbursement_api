@@ -32,6 +32,8 @@ export class DoSpacesService {
     }
 
     if (record) {
+      record.send();
+
       return {
         message: 'Success',
         file_url: `${this.configService.get('SPACES_BASE_URL')}/${
@@ -55,6 +57,8 @@ export class DoSpacesService {
     }
 
     if (record) {
+      record.send();
+
       return {
         message: 'Success',
         file_url: null,

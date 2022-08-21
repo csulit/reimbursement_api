@@ -5,6 +5,7 @@ import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { UsersService } from 'apps/auth/src/users/users.service';
 import { useTryAsync } from 'no-try';
 import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
+import { CancelRequestDTO } from '../dto/cancel-request.dto';
 import { SignRequestDTO } from '../dto/sign-request.dto';
 import { UpdateApproverDTO } from '../dto/update-approver.dto';
 import { ReimbursementsService } from './reimbursements.service';
@@ -276,6 +277,31 @@ export class ApproversService {
     return {
       message: 'Success',
       sent_to_next_approver: next_approver && is_approved ? true : false,
+    };
+  }
+
+  async cancelRequest(data: CancelRequestDTO, user: UserEntity) {
+    await this.prisma.reimbursement.update({
+      where: { id: data.id },
+      data: {
+        status: 'Cancelled',
+        is_for_approval: false,
+        next_approver: 0,
+        next_approver_id: null,
+        next_approver_department: null,
+        logs: {
+          push: {
+            message: data.note,
+            performed_by: user.name,
+            datetimme: Date.now(),
+          },
+        },
+      },
+    });
+
+    return {
+      message: 'Success',
+      sent_to_next_approver: false,
     };
   }
 }
