@@ -1,4 +1,5 @@
 import { PrismaService, RabbitMqService } from '@app/common';
+import { RMQ_REIMBURSEMENT_AUTH_SERVICE } from '@app/common/auth/constant';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -30,7 +31,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.connectMicroservice<RmqOptions>(rabbitMqService.getOptions('AUTH', true));
+  app.connectMicroservice<RmqOptions>(
+    rabbitMqService.getOptions(RMQ_REIMBURSEMENT_AUTH_SERVICE, true),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Reimbursement API')

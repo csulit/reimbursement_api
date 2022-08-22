@@ -12,7 +12,7 @@ import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { Sort } from 'apps/shared/enum/sort.enum';
 import paginate from 'apps/shared/utils/paginate.utils';
 import { parseAsync } from 'json2csv';
-import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
+import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CreateReimbursementDTO } from '../dto/create-reimbursement.dto';
 import { GetAllReimbursementsFilterDTO } from '../dto/get-all-reimbursements.dto';
 import { GetOneOptionalFilterDTO } from '../dto/get-one-optional-filter.dto';
@@ -23,7 +23,7 @@ export class ReimbursementsService {
   private readonly logger = new Logger(ReimbursementsService.name);
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    @Inject(RMQ_REIMBURSEMENT_QUEUE_SERVICE)
     private readonly reimbursementQueueClient: ClientProxy,
   ) {}
 
@@ -32,6 +32,7 @@ export class ReimbursementsService {
 
     const reimbursementWhereInput: Prisma.ReimbursementWhereInput = {
       user: { id: user?.profile.is_approver ? undefined : user.id },
+      rid: filter?.rid,
       ap_no: filter?.ap_no,
       status: filter?.status,
       filing_date: filter?.filing_date
@@ -46,7 +47,10 @@ export class ReimbursementsService {
             lte: new Date(filter.crediting_date),
           }
         : undefined,
-      amount_to_be_reimbursed: filter?.amount_to_be_reimbursed,
+      amount_to_be_reimbursed: {
+        gte: filter?.amount_to_be_reimbursed,
+        lte: filter?.amount_to_be_reimbursed,
+      },
       is_for_approval: filter?.is_for_approval,
       next_approver_id: filter?.next_approver_id,
       next_approver_department: filter?.next_approver_department,
@@ -59,6 +63,7 @@ export class ReimbursementsService {
         where: reimbursementWhereInput,
         select: {
           id: true,
+          rid: true,
           ap_no: true,
           batch_no: true,
           status: true,
@@ -140,6 +145,7 @@ export class ReimbursementsService {
       where: { id: reimbursement_id },
       select: {
         id: true,
+        rid: true,
         ap_no: true,
         batch_no: true,
         status: true,
@@ -209,10 +215,19 @@ export class ReimbursementsService {
   async create(user_id: string, data: CreateReimbursementDTO) {
     const { filing_date, default_first_approver } = data;
 
+    const counter = await this.prisma.requestCounter.findUnique({
+      where: { id: 'f5be7166-185f-481f-b3fc-747e9862b40d' },
+    });
+
+    if (!counter) {
+      throw new BadRequestException('Request counter is not set!');
+    }
+
     const batch_no = new Date(Date.now()).getDate() <= 15 ? 1 : 2;
 
     const newRecord = await this.prisma.reimbursement.create({
       data: {
+        rid: `RB-${new Date().getFullYear()}-${counter.count}`,
         batch_no,
         filing_date: new Date(filing_date),
         default_first_approver,
@@ -220,6 +235,7 @@ export class ReimbursementsService {
       },
       select: {
         id: true,
+        rid: true,
         ap_no: true,
         batch_no: true,
         status: true,
@@ -259,6 +275,13 @@ export class ReimbursementsService {
         logs: true,
       },
     });
+
+    if (newRecord) {
+      await this.prisma.requestCounter.update({
+        where: { id: 'f5be7166-185f-481f-b3fc-747e9862b40d' },
+        data: { count: { increment: 1 } },
+      });
+    }
 
     return newRecord;
   }

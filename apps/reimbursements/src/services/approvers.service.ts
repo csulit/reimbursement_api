@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { UsersService } from 'apps/auth/src/users/users.service';
 import { useTryAsync } from 'no-try';
-import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
+import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CancelRequestDTO } from '../dto/cancel-request.dto';
 import { SignRequestDTO } from '../dto/sign-request.dto';
 import { UpdateApproverDTO } from '../dto/update-approver.dto';
@@ -16,7 +16,7 @@ export class ApproversService {
     private readonly prisma: PrismaService,
     private readonly reimbursementsService: ReimbursementsService,
     private readonly usersService: UsersService,
-    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    @Inject(RMQ_REIMBURSEMENT_QUEUE_SERVICE)
     private readonly reimbursementQueueClient: ClientProxy,
   ) {}
 
@@ -85,9 +85,14 @@ export class ApproversService {
     const department = approver_details?.profile?.department ?? '';
 
     this.reimbursementQueueClient.emit('send_email', {
-      email: 'christian.sulit@kmc.solutions',
-      subject: 'Reimbursement request',
-      body: 'Test',
+      email: approver_details.work_email,
+      subject: '[NEW] Reimbursement request',
+      body: `<div>
+        <p>Request ID: ${request.rid}</p>
+        <p>Requestor: ${user.work_email}</p>
+        <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+        <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
+      </div>`,
     });
 
     if (request.total_expense < requestor.comp_and_ben.basic_salary) {
@@ -279,7 +284,12 @@ export class ApproversService {
       this.reimbursementQueueClient.emit('send_email', {
         email: data.new_approver_email,
         subject: 'Reimbursement request re-route for approval',
-        body: 'New approver assignment',
+        body: `<div>
+          <p>Request ID: ${request.rid}</p>
+          <p>Requestor: ${request.user.work_email}</p>
+          <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+          <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
+        </div>`,
       });
 
       await this.prisma.reimbursement.update({
@@ -290,7 +300,7 @@ export class ApproversService {
           next_approver_department: new_approver_details?.profile?.department,
           logs: {
             push: {
-              message: 'Skipped',
+              message: data?.note ?? 'Skipped',
               performed_by: user.name,
               datetimme: Date.now(),
             },
@@ -333,7 +343,11 @@ export class ApproversService {
           next_approver_department: null,
           logs: {
             push: {
-              message: is_approved ? 'Approved' : 'Declined',
+              message: is_approved
+                ? 'Approved'
+                : data?.note
+                ? data.note
+                : 'Declined',
               performed_by: user.name,
               datetimme: Date.now(),
             },
@@ -364,7 +378,11 @@ export class ApproversService {
           next_approver_department: next_signatory_details?.profile?.department,
           logs: {
             push: {
-              message: is_approved ? 'Approved' : 'Declined',
+              message: is_approved
+                ? 'Approved'
+                : data?.note
+                ? data.note
+                : 'Declined',
               performed_by: user.name,
               datetimme: Date.now(),
             },
@@ -378,8 +396,10 @@ export class ApproversService {
         email: data.new_approver_email,
         subject: 'Reimbursement request needs your approval',
         body: `<div>
-          <p>Requestor name: ${request.user.name}</p>
-          <p>Amount to reimbursed: PHP ${request.amount_to_be_reimbursed}</p>
+          <p>Request ID: ${request.rid}</p>
+          <p>Requestor: ${request.user.work_email}</p>
+          <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+          <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
         </div>`,
       });
     }
@@ -388,7 +408,11 @@ export class ApproversService {
       this.reimbursementQueueClient.emit('send_email', {
         email: request.user.work_email,
         subject: 'Reimbursement request has been declined',
-        body: 'New approver assignment',
+        body: `${
+          approvers[next_approver - 1]['display_name']
+        } declined your request amounting to <strong>PHP ${
+          request.amount_to_be_reimbursed
+        }</strong> with a note: <strong>${data.note}</strong>`,
       });
     }
 
@@ -396,6 +420,23 @@ export class ApproversService {
       message: 'Success',
       sent_to_next_approver:
         next_approver && is_approved && next_signatory ? true : false,
+    };
+  }
+
+  async multiSignRequest(data: SignRequestDTO[], user: UserEntity) {
+    if (!Array.isArray(data)) {
+      throw new BadRequestException('Payload should be a list of request.');
+    }
+
+    data.forEach((request, i) => {
+      setTimeout(() => {
+        this.signRequest(request, user);
+      }, i * 500);
+    });
+
+    return {
+      message: 'Success',
+      multi_sign: true,
     };
   }
 

@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsNumber,
   IsOptional,
+  IsString,
   IsUUID,
 } from 'class-validator';
 
@@ -23,6 +24,10 @@ export class SignRequestDTO {
   @IsBoolean()
   @ToBoolean()
   readonly is_approved: boolean;
+
+  @IsString()
+  @IsOptional()
+  readonly note?: string;
 
   @IsEmail()
   @IsOptional()

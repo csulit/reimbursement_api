@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { REIMBURSEMENT_QUEUE_SERVICE } from 'apps/reimbursements/src/constant';
+import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from 'apps/reimbursements/src/constant';
 import * as bcrypt from 'bcrypt';
 import { CreateBankDetailsDTO } from '../dto/create-bank-details.dto';
 import { CreateUserDTO } from '../dto/create-user.dto';
@@ -17,7 +17,7 @@ import { UpdateBankDetailsDTO } from '../dto/update-bank-details.dto';
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    @Inject(RMQ_REIMBURSEMENT_QUEUE_SERVICE)
     private readonly reimbursementQueueClient: ClientProxy,
   ) {}
 

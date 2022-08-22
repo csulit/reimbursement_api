@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { useTryAsync } from 'no-try';
-import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
+import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CreateParticularDTO } from '../dto/create-particular.dto';
 import { UpdateParticularDTO } from '../dto/update-particular.dto';
 import { ReimbursementsService } from './reimbursements.service';
@@ -16,7 +16,7 @@ import { ReimbursementsService } from './reimbursements.service';
 export class ParticularsService {
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(REIMBURSEMENT_QUEUE_SERVICE)
+    @Inject(RMQ_REIMBURSEMENT_QUEUE_SERVICE)
     private readonly reimbursementQueueClient: ClientProxy,
     private readonly reimbursementsService: ReimbursementsService,
   ) {}

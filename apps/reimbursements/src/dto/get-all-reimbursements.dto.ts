@@ -18,6 +18,11 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
+  readonly rid?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
   readonly ap_no?: string;
 
   @IsString()

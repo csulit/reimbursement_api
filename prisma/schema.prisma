@@ -66,6 +66,7 @@ model BankAccount {
 
 model Reimbursement {
   id                       String       @id @default(uuid())
+  rid                      String       @unique
   user_id                  String
   user                     User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   ap_no                    String?
@@ -153,4 +154,11 @@ model TypeOfExpense {
   code String? @unique @db.VarChar(50)
 
   @@map("type_of_expenses")
+}
+
+model RequestCounter {
+  id    String @id @default(uuid())
+  count Int    @default(0)
+
+  @@map("request_counter")
 }
