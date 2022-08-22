@@ -30,14 +30,14 @@ export class QueuesController {
 
   @EventPattern('send_email')
   sendEmail(
-    @Payload() data: { email: string; body: string },
+    @Payload() data: { email: string; subject: string; body: string },
     @Ctx() context: RmqContext,
   ) {
-    const { email, body } = data;
+    const { email, subject, body } = data;
 
     this.erpQueueService.sendEmail({
       to: email,
-      subject: 'Test',
+      subject,
       body,
     });
 

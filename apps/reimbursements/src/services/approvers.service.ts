@@ -86,6 +86,7 @@ export class ApproversService {
 
     this.reimbursementQueueClient.emit('send_email', {
       email: 'christian.sulit@kmc.solutions',
+      subject: 'Reimbursement request',
       body: 'Test',
     });
 
@@ -105,6 +106,14 @@ export class ApproversService {
           next_approver: 1,
           next_approver_id: approver_details.id,
           next_approver_department: department,
+          approver_stages: 3,
+          logs: {
+            push: {
+              message: 'Sent for approval',
+              performed_by: user.name,
+              datetimme: Date.now(),
+            },
+          },
         },
         select: {
           id: true,
@@ -166,6 +175,14 @@ export class ApproversService {
         next_approver: 1,
         next_approver_id: approver_details.id,
         next_approver_department: department,
+        approver_stages: 4,
+        logs: {
+          push: {
+            message: 'Sent for approval',
+            performed_by: user.name,
+            datetimme: Date.now(),
+          },
+        },
       },
       select: {
         id: true,
@@ -209,13 +226,11 @@ export class ApproversService {
   }
 
   async signRequest(data: SignRequestDTO, user: UserEntity) {
-    const { id, order, signer_index, is_approved, skipped } = data;
+    const { id, next_approver, is_approved, skipped } = data;
 
-    if (is_approved && skipped) {
-      throw new BadRequestException('You approved and you skipped. Amazing...');
-    }
-
-    const request = await this.reimbursementsService.getOne(id);
+    const request = await this.reimbursementsService.getOne(id, {
+      show_requestor: true,
+    });
 
     if (request.amount_to_be_reimbursed <= 0) {
       throw new BadRequestException('Request total amount is 0!');
@@ -233,27 +248,108 @@ export class ApproversService {
       throw new BadRequestException('You are not the next approver!');
     }
 
-    approvers[signer_index]['is_approved'] = is_approved;
-    approvers[signer_index]['time_stamp'] = new Date(Date.now());
-
-    const next_approver = approvers[order];
-
     if (skipped) {
       if (!data?.new_approver_email) {
         throw new BadRequestException('New approver email field is empty!');
       }
 
-      // Send email to requestor and to the new approver.
-    }
+      if (
+        data.new_approver_email === user.work_email ||
+        data.new_approver_email === user.personal_email
+      ) {
+        throw new BadRequestException(
+          "You can't assign new approver using your own email!",
+        );
+      }
 
-    if (next_approver && is_approved) {
-      const next_approver_email = approvers[order]['approver_email'];
-
-      const [error, approver_details] = await useTryAsync(() =>
-        this.usersService.byEmail(next_approver_email),
+      const [new_approver_error, new_approver_details] = await useTryAsync(() =>
+        this.usersService.byEmail(data.new_approver_email),
       );
 
-      if (error) {
+      if (new_approver_error) {
+        throw new BadRequestException('New approver email is not found!');
+      }
+
+      approvers[next_approver - 1]['display_name'] = new_approver_details.name;
+      approvers[next_approver - 1]['approver_email'] =
+        new_approver_details.work_email;
+      approvers[next_approver - 1]['approver_department'] =
+        new_approver_details?.profile?.department;
+
+      this.reimbursementQueueClient.emit('send_email', {
+        email: data.new_approver_email,
+        subject: 'Reimbursement request re-route for approval',
+        body: 'New approver assignment',
+      });
+
+      await this.prisma.reimbursement.update({
+        where: { id },
+        data: {
+          approvers,
+          next_approver_id: new_approver_details.id,
+          next_approver_department: new_approver_details?.profile?.department,
+          logs: {
+            push: {
+              message: 'Skipped',
+              performed_by: user.name,
+              datetimme: Date.now(),
+            },
+          },
+        },
+      });
+
+      return {
+        message: 'Success',
+        sent_to_next_approver: true,
+      };
+    }
+
+    const has_signed = approvers.filter(
+      (data) => data['time_stamp'] !== null,
+    ).length;
+
+    if (has_signed === request.approver_stages) {
+      return {
+        message: 'Approver cycle is already completed!',
+        sent_to_next_approver: false,
+      };
+    }
+
+    approvers[next_approver - 1]['is_approved'] = is_approved;
+    approvers[next_approver - 1]['time_stamp'] = new Date(Date.now());
+
+    const next_signatory = approvers[next_approver];
+
+    if (!next_signatory) {
+      await this.prisma.reimbursement.update({
+        where: { id },
+        data: {
+          approvers,
+          status: is_approved ? 'Completed' : 'Declined',
+          is_for_approval: false,
+          is_fully_approved: is_approved,
+          next_approver: 0,
+          next_approver_id: null,
+          next_approver_department: null,
+          logs: {
+            push: {
+              message: is_approved ? 'Approved' : 'Declined',
+              performed_by: user.name,
+              datetimme: Date.now(),
+            },
+          },
+        },
+      });
+    }
+
+    if (next_approver) {
+      const next_signatory_email = next_signatory['approver_email'];
+
+      const [next_signatory_error, next_signatory_details] = await useTryAsync(
+        () => this.usersService.byEmail(next_signatory_email),
+      );
+
+      if (next_signatory_error) {
         throw new BadRequestException('Next approver email is not found!');
       }
 
@@ -261,34 +357,71 @@ export class ApproversService {
         where: { id },
         data: {
           approvers,
-          next_approver: order + 1,
-          next_approver_id: approver_details.id,
-          next_approver_department: approver_details?.profile?.department,
+          status: is_approved ? 'For Approval' : 'Declined',
+          is_for_approval: is_approved,
+          next_approver: next_approver + 1,
+          next_approver_id: next_signatory_details.id,
+          next_approver_department: next_signatory_details?.profile?.department,
+          logs: {
+            push: {
+              message: is_approved ? 'Approved' : 'Declined',
+              performed_by: user.name,
+              datetimme: Date.now(),
+            },
+          },
         },
       });
+    }
 
-      // Send email here to the next approver.
+    if (is_approved && next_approver) {
+      this.reimbursementQueueClient.emit('send_email', {
+        email: data.new_approver_email,
+        subject: 'Reimbursement request needs your approval',
+        body: `<div>
+          <p>Requestor name: ${request.user.name}</p>
+          <p>Amount to reimbursed: PHP ${request.amount_to_be_reimbursed}</p>
+        </div>`,
+      });
     }
 
     if (!is_approved) {
-      // Send email here to the requestor.
+      this.reimbursementQueueClient.emit('send_email', {
+        email: request.user.work_email,
+        subject: 'Reimbursement request has been declined',
+        body: 'New approver assignment',
+      });
     }
 
     return {
       message: 'Success',
-      sent_to_next_approver: next_approver && is_approved ? true : false,
+      sent_to_next_approver:
+        next_approver && is_approved && next_signatory ? true : false,
     };
   }
 
   async cancelRequest(data: CancelRequestDTO, user: UserEntity) {
-    await this.prisma.reimbursement.update({
+    const {
+      id,
+      status,
+      is_cancelled,
+      is_for_approval,
+      next_approver,
+      next_approver_id,
+      next_approver_department,
+      amount_to_be_reimbursed,
+      user: request_user,
+      logs,
+    } = await this.prisma.reimbursement.update({
       where: { id: data.id },
       data: {
         status: 'Cancelled',
         is_for_approval: false,
+        is_cancelled: true,
         next_approver: 0,
         next_approver_id: null,
         next_approver_department: null,
+        approver_stages: 0,
+        approvers: [],
         logs: {
           push: {
             message: data.note,
@@ -297,11 +430,41 @@ export class ApproversService {
           },
         },
       },
+      select: {
+        id: true,
+        status: true,
+        is_cancelled: true,
+        is_for_approval: true,
+        next_approver: true,
+        next_approver_id: true,
+        next_approver_department: true,
+        amount_to_be_reimbursed: true,
+        user: {
+          select: {
+            work_email: true,
+          },
+        },
+        logs: true,
+      },
+    });
+
+    this.reimbursementQueueClient.emit('send_email', {
+      email: request_user.work_email,
+      subject: 'Reimbursement request cancelled',
+      body: `${user.name} cancelled your request amounting to <strong>PHP ${amount_to_be_reimbursed}</strong> with a note: <strong>${data.note}</strong>`,
     });
 
     return {
+      id,
       message: 'Success',
+      status,
+      is_cancelled,
+      is_for_approval,
+      next_approver,
+      next_approver_id,
+      next_approver_department,
       sent_to_next_approver: false,
+      logs,
     };
   }
 }

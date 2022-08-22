@@ -11,6 +11,8 @@ import {
   Post,
   Query,
   Req,
+  Response,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -22,7 +24,8 @@ import { CreateBankDetailsDTO } from 'apps/auth/src/dto/create-bank-details.dto'
 import { UpdateBankDetailsDTO } from 'apps/auth/src/dto/update-bank-details.dto';
 import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { UsersService } from 'apps/auth/src/users/users.service';
-import { Request } from 'express';
+import { Request, Response as ExpressResponse } from 'express';
+import { CancelRequestDTO } from './dto/cancel-request.dto';
 import { CreateParticularDTO } from './dto/create-particular.dto';
 import { CreateReimbursementDTO } from './dto/create-reimbursement.dto';
 import { GetAllReimbursementsFilterDTO } from './dto/get-all-reimbursements.dto';
@@ -84,7 +87,15 @@ export class ReimbursementsController {
     return this.approversService.sendForApproval(id, approver_email, user);
   }
 
-  @Patch('sign-request')
+  @Post('cancel-request')
+  cancelRequest(
+    @Body() data: CancelRequestDTO,
+    @CurrentUser() user: UserEntity,
+  ) {
+    return this.approversService.cancelRequest(data, user);
+  }
+
+  @Post('sign-request')
   signRequest(@Body() data: SignRequestDTO, @CurrentUser() user: UserEntity) {
     return this.approversService.signRequest(data, user);
   }
@@ -100,6 +111,23 @@ export class ReimbursementsController {
     const result = await this.doSpacesService.uploadFile(file, 'reimbursement');
 
     return result;
+  }
+
+  @Get('request-report')
+  async getFile(
+    @Response({ passthrough: true }) res: ExpressResponse,
+    @Query('id', new ParseUUIDPipe()) id: string,
+  ): Promise<StreamableFile> {
+    const buffCsv = Buffer.from(
+      await this.reimbursementsService.generateRequestReport(id),
+    );
+
+    res.set({
+      'Content-Type': 'application/json',
+      'Content-Disposition': `attachment; filename="${'test.csv'}"`,
+    });
+
+    return new StreamableFile(buffCsv, { type: 'text/csv' });
   }
 
   // Start - remove soon

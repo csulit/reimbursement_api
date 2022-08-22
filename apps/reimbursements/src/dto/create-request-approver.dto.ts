@@ -1,4 +1,5 @@
-import { Transform, Type } from 'class-transformer';
+import { ToBoolean } from 'apps/shared/decorator/to-boolean.decorator';
+import { Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsNumber, IsString } from 'class-validator';
 
 export class CreateRequestApproverDTO {
@@ -16,15 +17,15 @@ export class CreateRequestApproverDTO {
   approver_department?: string;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   executive_level: boolean;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   is_approved: boolean;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   skipped: boolean;
 
   @IsDateString()

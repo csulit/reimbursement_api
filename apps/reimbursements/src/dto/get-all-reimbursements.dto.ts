@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
+import { ToBoolean } from 'apps/shared/decorator/to-boolean.decorator';
 import { PaginateDTO } from 'apps/shared/dto/paginate.dto';
 import { Sort } from 'apps/shared/enum/sort.enum';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
@@ -38,7 +39,7 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
   readonly amount_to_be_reimbursed?: number;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   @IsOptional()
   readonly is_for_approval?: boolean;
 
@@ -53,7 +54,7 @@ export class GetAllReimbursementsFilterDTO extends PartialType(PaginateDTO) {
   readonly next_approver_department?: string;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   @IsOptional()
   readonly show_requestor?: boolean;
 

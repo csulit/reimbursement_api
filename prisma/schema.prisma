@@ -76,12 +76,15 @@ model Reimbursement {
   crediting_date           DateTime?    @db.Date
   total_expense            Float        @default(0.0)
   amount_to_be_reimbursed  Float        @default(0.0)
+  is_cancelled             Boolean      @default(false)
   is_for_approval          Boolean      @default(false)
+  is_fully_approved        Boolean      @default(false)
   default_first_approver   String?      @db.VarChar(100)
   approvers                Json[]
   next_approver            Int          @default(1)
   next_approver_id         String?      @db.VarChar(100)
   next_approver_department String?      @db.VarChar(100)
+  approver_stages          Int          @default(0)
   logs                     Json[]
   created_at               DateTime     @default(now())
 

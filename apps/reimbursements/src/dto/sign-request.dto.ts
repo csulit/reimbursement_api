@@ -1,4 +1,5 @@
-import { Transform, Type } from 'class-transformer';
+import { ToBoolean } from 'apps/shared/decorator/to-boolean.decorator';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -13,21 +14,17 @@ export class SignRequestDTO {
 
   @IsNumber()
   @Type(() => Number)
-  readonly signer_index: number;
-
-  @IsNumber()
-  @Type(() => Number)
-  readonly order: number;
+  readonly next_approver: number;
 
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @ToBoolean()
   readonly skipped: boolean;
+
+  @IsBoolean()
+  @ToBoolean()
+  readonly is_approved: boolean;
 
   @IsEmail()
   @IsOptional()
   readonly new_approver_email?: string;
-
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true')
-  readonly is_approved: boolean;
 }

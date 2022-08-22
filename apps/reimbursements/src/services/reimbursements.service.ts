@@ -1,10 +1,17 @@
 import { PrismaService } from '@app/common';
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Prisma } from '@prisma/client';
 import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { Sort } from 'apps/shared/enum/sort.enum';
 import paginate from 'apps/shared/utils/paginate.utils';
+import { parseAsync } from 'json2csv';
 import { REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CreateReimbursementDTO } from '../dto/create-reimbursement.dto';
 import { GetAllReimbursementsFilterDTO } from '../dto/get-all-reimbursements.dto';
@@ -59,12 +66,15 @@ export class ReimbursementsService {
           crediting_date: true,
           total_expense: true,
           amount_to_be_reimbursed: true,
+          is_cancelled: true,
           is_for_approval: true,
+          is_fully_approved: true,
           default_first_approver: true,
           approvers: true,
           next_approver: true,
           next_approver_id: true,
           next_approver_department: true,
+          approver_stages: true,
           user: filter?.show_requestor
             ? {
                 select: {
@@ -104,6 +114,7 @@ export class ReimbursementsService {
               created_at: 'desc',
             },
           },
+          logs: true,
         },
         orderBy: {
           [filter?.order_by ? filter.order_by : OrderBy.created_at]:
@@ -136,12 +147,15 @@ export class ReimbursementsService {
         crediting_date: true,
         total_expense: true,
         amount_to_be_reimbursed: true,
+        is_cancelled: true,
         is_for_approval: true,
+        is_fully_approved: true,
         default_first_approver: true,
         approvers: true,
         next_approver: true,
         next_approver_id: true,
         next_approver_department: true,
+        approver_stages: true,
         user: filter?.show_requestor
           ? {
               select: {
@@ -181,6 +195,7 @@ export class ReimbursementsService {
             created_at: 'desc',
           },
         },
+        logs: true,
       },
     });
 
@@ -212,12 +227,15 @@ export class ReimbursementsService {
         crediting_date: true,
         total_expense: true,
         amount_to_be_reimbursed: true,
+        is_cancelled: true,
         is_for_approval: true,
+        is_fully_approved: true,
         default_first_approver: true,
         approvers: true,
         next_approver: true,
         next_approver_id: true,
         next_approver_department: true,
+        approver_stages: true,
         particulars: {
           select: {
             id: true,
@@ -238,10 +256,57 @@ export class ReimbursementsService {
             created_at: 'desc',
           },
         },
+        logs: true,
       },
     });
 
     return newRecord;
+  }
+
+  async generateRequestReport(id: string) {
+    const internalFields = [
+      'Posting Date',
+      'Document No.',
+      'Account Type',
+      'Account No.',
+      'Description',
+      'Comment',
+      'Location Code',
+      'Department Code',
+      'Customer Code',
+      'Amount',
+      'VAT Amount',
+      'Gen. Posting Type',
+      'Vendor No.',
+      'VAT Bus. Posting Group',
+      'VAT Prod. Posting Group',
+      'WHT Bus. Posting Group',
+      'WHT Prod. Posting Group',
+      'Currency Code',
+      'Bal. VAT Difference',
+      'Employee Name',
+      'Employee Number',
+    ];
+
+    const externalFields = [
+      'Client',
+      'ID #',
+      'Employee Name',
+      'Type of Expense',
+      'Description',
+      'Client Code',
+      'Amount',
+      'Bank Name',
+      'Bank Account #',
+    ];
+
+    const csv = await parseAsync([], {
+      fields: externalFields,
+    }).catch(() => {
+      throw new BadRequestException('Error on generating CSV');
+    });
+
+    return csv;
   }
 
   async getDepartments() {
