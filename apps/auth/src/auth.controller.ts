@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -40,6 +42,13 @@ export class AuthController {
   @Post('register')
   async register(@Body() data: CreateUserDTO) {
     return this.userService.create(data);
+  }
+
+  // No body payload because data will be gather in erp
+  @UseGuards(JwtAuthGuard)
+  @Patch('user/:id')
+  updateUser(@Query('id', new ParseUUIDPipe()) id: string) {
+    return this.userService.updateUser(id);
   }
 
   @Get('get-token')

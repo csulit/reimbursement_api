@@ -61,6 +61,7 @@ export class UsersService {
         profile: {
           select: {
             id: true,
+            emp_id: true,
             first_name: true,
             last_name: true,
             is_approver: true,
@@ -107,6 +108,7 @@ export class UsersService {
         profile: {
           select: {
             id: true,
+            emp_id: true,
             first_name: true,
             last_name: true,
             is_approver: true,
@@ -187,6 +189,20 @@ export class UsersService {
     }
   }
 
+  async updateUser(user_id: string) {
+    const user = await this.get(user_id);
+
+    this.reimbursementQueueClient.emit('update_user_information', {
+      user_id: user.id,
+      email: user?.personal_email || user?.work_email,
+    });
+
+    return {
+      success: true,
+      message: 'Update in progress.',
+    };
+  }
+
   async getBankDetails(user_id: string) {
     return await this.prisma.bankAccount.findMany({ where: { user_id } });
   }
@@ -226,9 +242,5 @@ export class UsersService {
 
   async deleteBankDetails(id: string) {
     return await this.prisma.bankAccount.delete({ where: { id } });
-  }
-
-  async updateAccountInformation() {
-    return true;
   }
 }

@@ -89,11 +89,19 @@ export class ReimbursementsService {
                   work_email: true,
                   profile: {
                     select: {
+                      emp_id: true,
                       first_name: true,
                       last_name: true,
                       department: true,
                       organization: true,
                       is_internal: true,
+                    },
+                  },
+                  bank_accounts: {
+                    select: {
+                      id: true,
+                      bank_name: true,
+                      account_number: true,
                     },
                   },
                 },
@@ -171,11 +179,19 @@ export class ReimbursementsService {
                 work_email: true,
                 profile: {
                   select: {
+                    emp_id: true,
                     first_name: true,
                     last_name: true,
                     department: true,
                     organization: true,
                     is_internal: true,
+                  },
+                },
+                bank_accounts: {
+                  select: {
+                    id: true,
+                    bank_name: true,
+                    account_number: true,
                   },
                 },
               },
@@ -252,6 +268,31 @@ export class ReimbursementsService {
         next_approver_id: true,
         next_approver_department: true,
         approver_stages: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            personal_email: true,
+            work_email: true,
+            profile: {
+              select: {
+                emp_id: true,
+                first_name: true,
+                last_name: true,
+                department: true,
+                organization: true,
+                is_internal: true,
+              },
+            },
+            bank_accounts: {
+              select: {
+                id: true,
+                bank_name: true,
+                account_number: true,
+              },
+            },
+          },
+        },
         particulars: {
           select: {
             id: true,
@@ -287,6 +328,8 @@ export class ReimbursementsService {
   }
 
   async generateRequestReport(id: string) {
+    const request = await this.getOne(id, { show_requestor: true });
+
     const internalFields = [
       'Posting Date',
       'Document No.',

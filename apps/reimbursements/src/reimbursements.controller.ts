@@ -196,12 +196,13 @@ export class ReimbursementsController {
   @Delete('particular/:particular_id')
   deleteParticular(
     @Req() req: Request,
+    @CurrentUser() user: UserEntity,
     @Param('particular_id', new ParseUUIDPipe()) particular_id: string,
   ) {
-    return this.particularsService.delete(
-      particular_id,
-      req.cookies?.Authentication,
-    );
+    return this.particularsService.delete(particular_id, {
+      authentication: req.cookies?.Authentication,
+      user,
+    });
   }
 
   @Delete('particular/receipt/:key')

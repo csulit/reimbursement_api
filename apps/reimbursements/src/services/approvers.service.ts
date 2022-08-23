@@ -237,6 +237,10 @@ export class ApproversService {
       show_requestor: true,
     });
 
+    if (!request.particulars.length) {
+      throw new BadRequestException('Request particular is empty!');
+    }
+
     if (request.amount_to_be_reimbursed <= 0) {
       throw new BadRequestException('Request total amount is 0!');
     }

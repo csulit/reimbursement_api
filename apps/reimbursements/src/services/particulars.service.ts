@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import UserEntity from 'apps/auth/src/users/entity/user.entity';
 import { useTryAsync } from 'no-try';
 import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from '../constant';
 import { CreateParticularDTO } from '../dto/create-particular.dto';
@@ -156,7 +157,12 @@ export class ParticularsService {
     return updatedRecord;
   }
 
-  async delete(particular_id: string, authentication: string) {
+  async delete(
+    particular_id: string,
+    auth: { authentication: string; user: UserEntity },
+  ) {
+    const { authentication, user } = auth;
+
     const particular = await this.prisma.particular.findUnique({
       where: { id: particular_id },
       select: { reimbursement_id: true },
@@ -169,7 +175,7 @@ export class ParticularsService {
     const [error, deletedRecord] = await useTryAsync(() =>
       this.prisma.particular.delete({
         where: { id: particular_id },
-        select: { id: true },
+        select: { id: true, reimbursement_id: true },
       }),
     );
 
@@ -177,6 +183,46 @@ export class ParticularsService {
       throw new BadRequestException(
         error?.message || 'Something went wrong deleting a particular.',
       );
+    }
+
+    const request = await this.reimbursementsService.getOne(
+      deletedRecord.reimbursement_id,
+      { show_requestor: true },
+    );
+
+    if (request.is_for_approval) {
+      // Particular total has become 0 kaka delete mo wew!
+      if (!request.particulars.length) {
+        await this.prisma.reimbursement.update({
+          where: { id: deletedRecord.reimbursement_id },
+          data: {
+            status: 'Re-created',
+            is_for_approval: false,
+            is_cancelled: false,
+            next_approver: 0,
+            next_approver_id: null,
+            next_approver_department: null,
+            approver_stages: 0,
+            approvers: [],
+            logs: {
+              push: {
+                message: 'Deleted all particulars',
+                performed_by: user.name,
+                datetimme: Date.now(),
+              },
+            },
+          },
+        });
+
+        this.reimbursementQueueClient.emit('send_email', {
+          email: request.user.work_email,
+          subject: '[RE-CREATED] Reimbursement request',
+          body: `<div>
+            <p>Request ID ${request.rid} has been re-created.</p>
+            <p>Reason: All particulars attached has been deleted by ${user.name}.</p>
+          </div>`,
+        });
+      }
     }
 
     this.reimbursementQueueClient.emit('calculate_total', {
