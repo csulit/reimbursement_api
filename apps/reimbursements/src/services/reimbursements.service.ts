@@ -4,7 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Prisma } from '@prisma/client';
@@ -354,6 +354,30 @@ export class ReimbursementsService {
       'Employee Number',
     ];
 
+    const internalData = request.particulars.map((data) => ({
+      [internalFields[0]]: 'Posting Date',
+      [internalFields[1]]: 'Document No.',
+      [internalFields[2]]: 'Account Type',
+      [internalFields[3]]: 'Account No.',
+      [internalFields[4]]: 'Description',
+      [internalFields[5]]: 'Comment',
+      [internalFields[6]]: 'Location Code',
+      [internalFields[7]]: 'Department Code',
+      [internalFields[8]]: 'Customer Code',
+      [internalFields[9]]: 'Amount',
+      [internalFields[10]]: 'VAT Amount',
+      [internalFields[11]]: 'Gen. Posting Type',
+      [internalFields[12]]: 'Vendor No.',
+      [internalFields[13]]: 'VAT Amount',
+      [internalFields[14]]: 'VAT Bus. Posting Group',
+      [internalFields[15]]: 'VAT Prod. Posting Group',
+      [internalFields[16]]: 'WHT Bus. Posting Group',
+      [internalFields[17]]: 'WHT Prod. Posting Group',
+      [internalFields[18]]: 'Bal. VAT Difference',
+      [internalFields[19]]: 'Employee Name',
+      [internalFields[20]]: 'Employee Number',
+    }))
+
     const externalFields = [
       'Client',
       'ID #',
@@ -366,8 +390,9 @@ export class ReimbursementsService {
       'Bank Account #',
     ];
 
-    const csv = await parseAsync([], {
-      fields: externalFields,
+
+    const csv = await parseAsync(internalData, {
+      fields: internalFields,
     }).catch(() => {
       throw new BadRequestException('Error on generating CSV');
     });

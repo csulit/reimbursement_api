@@ -15,7 +15,7 @@ import {
   StreamableFile,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -124,8 +124,10 @@ export class ReimbursementsController {
 
     res.set({
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="${'test.csv'}"`,
+      'Content-Disposition': `attachment; filename="${'request-report.csv'}"`,
     });
+
+    console.log(buffCsv)
 
     return new StreamableFile(buffCsv, { type: 'text/csv' });
   }
