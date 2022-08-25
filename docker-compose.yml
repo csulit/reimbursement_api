@@ -2,9 +2,8 @@ services:
   rabbitmq:
     image: rabbitmq:latest
     ports:
-      - '5672:5672'
-      - '15672:15672'
-      
+      - '5672'
+
   postgres:
     image: postgres:latest
     environment:
@@ -12,7 +11,12 @@ services:
     volumes:
       - 'postgres_master_data:/postgres/data'
     ports:
-      - '5432:5432'
+      - '5432'
+
+networks:
+  default:
+    name: nginx-proxy-manager_default
+    external: true
 
 volumes:
   postgres_master_data:

@@ -167,6 +167,7 @@ export class ApproversService {
     approver_config[0]['display_name'] = fullName;
     approver_config[0]['approver_department'] = department;
 
+    // Execom approver of the department
     approver_config[1]['approver_email'] = approver_email;
     approver_config[1]['display_name'] = fullName;
     approver_config[1]['approver_department'] = department;

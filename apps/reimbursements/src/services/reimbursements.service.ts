@@ -4,7 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Prisma } from '@prisma/client';
@@ -376,7 +376,7 @@ export class ReimbursementsService {
       [internalFields[18]]: 'Bal. VAT Difference',
       [internalFields[19]]: 'Employee Name',
       [internalFields[20]]: 'Employee Number',
-    }))
+    }));
 
     const externalFields = [
       'Client',
@@ -389,7 +389,6 @@ export class ReimbursementsService {
       'Bank Name',
       'Bank Account #',
     ];
-
 
     const csv = await parseAsync(internalData, {
       fields: internalFields,

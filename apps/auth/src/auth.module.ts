@@ -20,6 +20,7 @@ import { UsersModule } from './users/users.module';
         JWT_EXPIRATION_IN_SECONDS: Joi.number().required(),
         JWT_EXPIRATION_IN_DAYS: Joi.string().required(),
       }),
+      envFilePath: './apps/auth/.env',
     }),
     RabbitMqModule,
     PrismaModule,
