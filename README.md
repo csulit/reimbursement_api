@@ -6,3 +6,7 @@
 # Run Command
 
 - npx prisma migrate deploy && npm run start:prod
+
+# Docker pgweb
+
+- https://hub.docker.com/r/sosedoff/pgweb/
