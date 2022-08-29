@@ -15,12 +15,17 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        AUTH_PORT: Joi.number().required(),
+        DATABASE_URL: Joi.string().required(),
+        AUTH_PORT: Joi.string().required(),
         JWT_SECRET_KEY: Joi.string().required(),
-        JWT_EXPIRATION_IN_SECONDS: Joi.number().required(),
+        JWT_EXPIRATION_IN_SECONDS: Joi.string().required(),
         JWT_EXPIRATION_IN_DAYS: Joi.string().required(),
+        RABBIT_MQ_URI: Joi.string().required()
       }),
-      envFilePath: './apps/auth/.env',
+      envFilePath: [
+        './apps/auth/auth.dev.env',
+        './apps/auth/auth.prod.env',
+      ],
     }),
     RabbitMqModule,
     PrismaModule,

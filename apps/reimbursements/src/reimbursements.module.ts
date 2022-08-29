@@ -2,7 +2,7 @@ import {
   AuthModule,
   DoSpacesModule,
   PrismaModule,
-  RabbitMqModule,
+  RabbitMqModule
 } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -19,9 +19,14 @@ import { ReimbursementsService } from './services/reimbursements.service';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        REIMBURSEMENT_PORT: Joi.number().required(),
+        DATABASE_URL: Joi.string().required(),
+        REIMBURSEMENT_PORT: Joi.string().required(),
+        RABBIT_MQ_URI: Joi.string().required()
       }),
-      envFilePath: ['../reimbursements.dev.env', '../reimbursements.prod.env'],
+      envFilePath: [
+        './apps/reimbursements.dev.env',
+        './apps/reimbursements.prod.env',
+      ],
     }),
     RabbitMqModule.register({
       name: RMQ_REIMBURSEMENT_QUEUE_SERVICE,

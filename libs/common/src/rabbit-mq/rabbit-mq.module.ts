@@ -15,6 +15,7 @@ interface RabbitMqModuleOptions {
       validationSchema: Joi.object({
         RABBIT_MQ_URI: Joi.string().required(),
       }),
+      envFilePath: ['../../.env'],
     }),
   ],
   providers: [RabbitMqService],

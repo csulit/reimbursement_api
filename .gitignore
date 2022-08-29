@@ -1,9 +1,9 @@
 # compiled output
 /dist
 /node_modules
-
-# Env
-*.env
+*.crt
+*.crt:Zone.Identifier
+.env
 
 # Logs
 logs
