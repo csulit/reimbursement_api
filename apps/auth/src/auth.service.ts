@@ -8,12 +8,16 @@ import { UsersService } from './users/users.service';
 
 @Injectable()
 export class AuthService {
+  private node_env: 'development' | 'production' | null = null;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) {
+    this.node_env = this.configService.get('NODE_ENV');
+  }
 
   async login(user: UserEntity, response: Response) {
     const expires = new Date();
@@ -28,7 +32,7 @@ export class AuthService {
     response.cookie('Authentication', token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false,
+      secure: this.node_env === 'production' ? true : false,
       expires,
     });
   }
@@ -66,7 +70,7 @@ export class AuthService {
     response.cookie('Authentication', token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false,
+      secure: this.node_env === 'production' ? true : false,
       expires,
     });
 

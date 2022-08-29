@@ -3,6 +3,7 @@
 /node_modules
 *.crt
 *.crt:Zone.Identifier
+*.prod.env
 .env
 
 # Logs
