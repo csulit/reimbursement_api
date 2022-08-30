@@ -10,8 +10,6 @@ services:
       - 3002:3002
     env_file:
       - ./apps/auth/auth.prod.env
-    depends_on:
-      - rabbitmq
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -27,7 +25,6 @@ services:
     env_file:
       - ./apps/queues/queues.prod.env
     depends_on:
-      - rabbitmq
       - auth
     volumes:
       - .:/usr/src/app
@@ -46,19 +43,11 @@ services:
     env_file:
       - ./apps/reimbursements/reimbursements.prod.env
     depends_on:
-      - rabbitmq
       - auth
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run start:prod reimbursements
-      
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:latest
-    ports:
-      - '5672'
-      
+    command: npm run start:prod reimbursements   
 networks:
   default:
     name: nginx-proxy-manager_default
