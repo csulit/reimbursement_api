@@ -1,0 +1,65 @@
+services:
+  auth:
+    container_name: reimbursement_auth
+    image: reimbursement_auth:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/auth/Dockerfile
+      target: production
+      context: .
+    ports:
+      - 3002:3002
+    env_file:
+      - ./apps/auth/auth.prod.env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:prod auth
+
+  queues:
+    container_name: reimbursement_queues
+    image: reimbursement_queues:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/queues/Dockerfile
+      target: production
+      context: .
+    env_file:
+      - ./apps/queues/queues.prod.env
+    depends_on:
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:prod queues
+
+  reimbursements:
+    container_name: reimbursement_api
+    image: reimbursement_api:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/reimbursements/Dockerfile
+      target: production
+      context: .
+    ports:
+      - 3003:3003
+    env_file:
+      - ./apps/reimbursements/reimbursements.prod.env
+    depends_on:
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:prod reimbursements
+      
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:latest
+    ports:
+      - '5672'
+      
+networks:
+  default:
+    name: nginx-proxy-manager_default
+    external: true

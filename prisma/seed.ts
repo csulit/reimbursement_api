@@ -10,6 +10,9 @@ export async function seed() {
     const typeOfExpenseCount = await prisma.typeOfExpense.count();
     const departmentCount = await prisma.department.count();
     const locationCount = await prisma.location.count();
+    const requestCounter = await prisma.requestCounter.findUnique({
+      where: { id: 'f5be7166-185f-481f-b3fc-747e9862b40d' },
+    });
 
     if (!typeOfExpenseCount) {
       await prisma.typeOfExpense.createMany({ data: typeOfExpense });
@@ -21,6 +24,15 @@ export async function seed() {
 
     if (!locationCount) {
       await prisma.location.createMany({ data: locations });
+    }
+
+    if (!requestCounter) {
+      await prisma.requestCounter.create({
+        data: {
+          id: 'f5be7166-185f-481f-b3fc-747e9862b40d',
+          count: 0,
+        },
+      });
     }
   });
 

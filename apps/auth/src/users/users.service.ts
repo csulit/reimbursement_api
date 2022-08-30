@@ -42,7 +42,10 @@ export class UsersService {
       email,
     });
 
-    return newUser;
+    return {
+      ...newUser,
+      password: null,
+    };
   }
 
   async get(user_id: string) {

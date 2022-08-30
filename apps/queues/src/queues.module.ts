@@ -12,17 +12,17 @@ import { ReimbursementsQueuesService } from './services/reimbursements.queues.se
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        './apps/queues/queues.dev.env',
+        './apps/queues/queues.prod.env',
+      ],
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         ERP_API_KEY: Joi.string().required(),
         ERP_HR_BASE_API_URL: Joi.string().required(),
         ERP_AUTH_BASE_API_URL: Joi.string().required(),
-        RABBIT_MQ_URI: Joi.string().required()
+        RABBIT_MQ_URI: Joi.string().required(),
       }),
-      envFilePath: [
-        './apps/queues/queues.dev.env',
-        './apps/queues/queues.prod.env',
-      ]
     }),
     RabbitMqModule,
     PrismaModule,

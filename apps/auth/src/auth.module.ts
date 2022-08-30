@@ -14,6 +14,7 @@ import { UsersModule } from './users/users.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['./apps/auth/auth.dev.env', './apps/auth/auth.prod.env'],
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         AUTH_PORT: Joi.string().required(),
@@ -22,7 +23,6 @@ import { UsersModule } from './users/users.module';
         JWT_EXPIRATION_IN_DAYS: Joi.string().required(),
         RABBIT_MQ_URI: Joi.string().required(),
       }),
-      envFilePath: ['./apps/auth/auth.dev.env', './apps/auth/auth.prod.env'],
     }),
     RabbitMqModule,
     PrismaModule,

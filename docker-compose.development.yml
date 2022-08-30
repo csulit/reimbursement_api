@@ -1,0 +1,65 @@
+services:
+  auth:
+    container_name: reimbursement_auth
+    image: reimbursement_auth:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+      context: .
+    ports:
+      - 3002:3002
+    env_file:
+      - ./apps/auth/auth.dev.env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev auth
+
+  queues:
+    container_name: reimbursement_queues
+    image: reimbursement_queues:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/queues/Dockerfile
+      target: development
+      context: .
+    env_file:
+      - ./apps/queues/queues.dev.env
+    depends_on:
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev queues
+
+  reimbursements:
+    container_name: reimbursement_api
+    image: reimbursement_api:${RELEASE_VERSION}
+    build:
+      dockerfile: ./apps/reimbursements/Dockerfile
+      target: development
+      context: .
+    ports:
+      - 3003:3003
+    env_file:
+      - ./apps/reimbursements/reimbursements.dev.env
+    depends_on:
+      - rabbitmq
+      - auth
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev reimbursements
+      
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:latest
+    ports:
+      - '5672:5672'
+      
+networks:
+  default:
+    name: old-town-coffee
+    external: true

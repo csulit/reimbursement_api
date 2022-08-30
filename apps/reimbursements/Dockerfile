@@ -1,9 +1,11 @@
-FROM node:alpine As development
+FROM node:16.17.0-alpine3.16 As development
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 COPY prisma ./prisma/
+
+RUN npm i --location=global npm@latest
 
 RUN npm install
 
@@ -13,7 +15,7 @@ RUN npx prisma generate
 
 RUN npm run build
 
-FROM node:alpine As production
+FROM node:16.17.0-alpine3.16 As production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
@@ -23,10 +25,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma/
 
+RUN npm i --location=global npm@latest
+
 RUN npm install --omit=dev
 
 COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
+
+EXPOSE 3003
 
 CMD ["node", "dist/apps/reimbursements/main"]
