@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl"]
-  previewFeatures = ["interactiveTransactions", "fullTextSearch"]
+  previewFeatures = ["interactiveTransactions", "fullTextSearch", "fieldReference"]
 }
 
 datasource db {
@@ -89,6 +89,7 @@ model Reimbursement {
   next_approver_id         String?      @db.VarChar(100)
   next_approver_department String?      @db.VarChar(100)
   approver_stages          Int          @default(0)
+  esign_url                String?
   logs                     Json[]
   created_at               DateTime     @default(now())
 

@@ -378,17 +378,17 @@ export class ReimbursementsService {
       [internalFields[20]]: 'Employee Number',
     }));
 
-    const externalFields = [
-      'Client',
-      'ID #',
-      'Employee Name',
-      'Type of Expense',
-      'Description',
-      'Client Code',
-      'Amount',
-      'Bank Name',
-      'Bank Account #',
-    ];
+    // const externalFields = [
+    //   'Client',
+    //   'ID #',
+    //   'Employee Name',
+    //   'Type of Expense',
+    //   'Description',
+    //   'Client Code',
+    //   'Amount',
+    //   'Bank Name',
+    //   'Bank Account #',
+    // ];
 
     const csv = await parseAsync(internalData, {
       fields: internalFields,

@@ -4,6 +4,7 @@
 *.crt
 *.crt:Zone.Identifier
 *.prod.env
+production.env
 .env
 
 # Logs

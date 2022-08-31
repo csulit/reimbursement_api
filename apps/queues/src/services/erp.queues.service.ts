@@ -30,6 +30,7 @@ export class ErpQueuesService {
           api_key: this.configService.get('ERP_API_KEY'),
           email,
         },
+        timeout: 120000,
       },
     );
 
@@ -37,10 +38,17 @@ export class ErpQueuesService {
       .then((response) => ({ data: response.data, status: 200 }))
       .catch((e) => ({ data: null, status: e.response?.status ?? 404 }));
 
+    console.log(employeeResult);
+
     console.log(`${employeeResult?.status} - ${email}`);
 
     if (employeeResult?.status === 200 && employeeResult?.data) {
       const erpEmployee = employeeResult.data as ErpEmployeeEntity;
+
+      const is_execom =
+        erpEmployee?.department?.toLocaleLowerCase() === 'executive'
+          ? true
+          : false;
 
       const erpProfileData = {
         emp_id: erpEmployee?.sr,
@@ -55,6 +63,7 @@ export class ErpQueuesService {
         await this.prisma.userProfile.create({
           data: {
             ...erpProfileData,
+            is_execom,
             user: {
               connect: {
                 id: user_id,
@@ -65,7 +74,10 @@ export class ErpQueuesService {
       } else {
         await this.prisma.userProfile.update({
           where: { id: user_profile.id },
-          data: erpProfileData,
+          data: {
+            ...erpProfileData,
+            is_execom,
+          },
         });
       }
 

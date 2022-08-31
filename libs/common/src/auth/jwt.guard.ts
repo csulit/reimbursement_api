@@ -39,6 +39,11 @@ export class JwtAuthGuard implements CanActivate {
     let authentication: string;
     const execType = context.getType();
 
+    console.log(`RFC=${context.switchToRpc().getData().Authentication}`);
+    console.log(
+      `REQ=${context.switchToHttp().getRequest().cookies?.Authentication}`,
+    );
+
     if (execType === 'rpc') {
       authentication = context.switchToRpc().getData().Authentication;
     } else if (execType === 'http') {

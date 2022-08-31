@@ -84,6 +84,8 @@ export class ApproversService {
 
     const department = approver_details?.profile?.department ?? '';
 
+    // Approver config needs to be check before firing an email "order" can be undefined.
+
     this.reimbursementQueueClient.emit('send_email', {
       email: approver_details.work_email,
       subject: '[NEW] Reimbursement request',
@@ -96,7 +98,7 @@ export class ApproversService {
     });
 
     if (request.total_expense < requestor.comp_and_ben.basic_salary) {
-      const approver_config = (await this.defaultApproverConfig()).order;
+      const approver_config = (await this.defaultApproverConfig())?.order;
 
       approver_config[0]['approver_email'] = approver_email;
       approver_config[0]['display_name'] = fullName;
@@ -161,7 +163,8 @@ export class ApproversService {
       return new_record;
     }
 
-    const approver_config = (await this.aboveGrossSalaryApproverConfig()).order;
+    const approver_config = (await this.aboveGrossSalaryApproverConfig())
+      ?.order;
 
     approver_config[0]['approver_email'] = approver_email;
     approver_config[0]['display_name'] = fullName;
