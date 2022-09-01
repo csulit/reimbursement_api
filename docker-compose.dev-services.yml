@@ -1,4 +1,5 @@
-services:      
+version: '3'
+services:
   postgresql:
     container_name: postgresql
     image: postgres:latest
@@ -8,7 +9,7 @@ services:
       - 'postgres_master_data:/postgres/data'
     ports:
       - '5432:5432'
-      
+
 networks:
   default:
     name: old-town-coffee

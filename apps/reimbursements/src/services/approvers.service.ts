@@ -46,6 +46,14 @@ export class ApproversService {
   }
 
   async sendForApproval(id: string, approver_email: string, user: UserEntity) {
+    const approver_configs = await this.prisma.approverConfig.count();
+
+    if (!approver_configs) {
+      throw new BadRequestException(
+        'Approver configuration in the backend is empty!',
+      );
+    }
+
     const request = await this.reimbursementsService.getOne(id);
 
     if (request.is_for_approval) {
@@ -84,17 +92,16 @@ export class ApproversService {
 
     const department = approver_details?.profile?.department ?? '';
 
-    // Approver config needs to be check before firing an email "order" can be undefined.
-
     this.reimbursementQueueClient.emit('send_email', {
       email: approver_details.work_email,
       subject: '[NEW] Reimbursement request',
-      body: `<div>
-        <p>Request ID: ${request.rid}</p>
-        <p>Requestor: ${user.work_email}</p>
-        <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
-        <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
-      </div>`,
+      body: `
+        <div>
+          <p>Request ID: ${request.rid}</p>
+          <p>Requestor: ${user.work_email}</p>
+          <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+          <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
+        </div>`,
     });
 
     if (request.total_expense < requestor.comp_and_ben.basic_salary) {
@@ -104,7 +111,7 @@ export class ApproversService {
       approver_config[0]['display_name'] = fullName;
       approver_config[0]['approver_department'] = department;
 
-      const new_record = await this.prisma.reimbursement.update({
+      const updated_record_default = await this.prisma.reimbursement.update({
         where: { id },
         data: {
           status: 'For Approval',
@@ -160,7 +167,7 @@ export class ApproversService {
         },
       });
 
-      return new_record;
+      return updated_record_default;
     }
 
     const approver_config = (await this.aboveGrossSalaryApproverConfig())
@@ -170,12 +177,39 @@ export class ApproversService {
     approver_config[0]['display_name'] = fullName;
     approver_config[0]['approver_department'] = department;
 
-    // Execom approver of the department
-    approver_config[1]['approver_email'] = approver_email;
-    approver_config[1]['display_name'] = fullName;
-    approver_config[1]['approver_department'] = department;
+    const user_requestor = await this.usersService.get(user.id);
 
-    const new_record = await this.prisma.reimbursement.update({
+    const execom_approver = await this.prisma.user.findFirst({
+      where: {
+        profile: {
+          is_execom: true,
+          department: user_requestor.profile.department,
+        },
+      },
+      select: {
+        work_email: true,
+        name: true,
+        profile: {
+          select: {
+            department: true,
+          },
+        },
+      },
+    });
+
+    if (!execom_approver) {
+      throw new BadRequestException(
+        'Execom approver for your department is not set!',
+      );
+    }
+
+    // Execom approver of the department
+    approver_config[1]['approver_email'] = execom_approver.work_email;
+    approver_config[1]['display_name'] = execom_approver.name;
+    approver_config[1]['approver_department'] =
+      execom_approver.profile.department;
+
+    const updated_record_above_gross = await this.prisma.reimbursement.update({
       where: { id },
       data: {
         status: 'For Approval',
@@ -231,7 +265,7 @@ export class ApproversService {
       },
     });
 
-    return new_record;
+    return updated_record_above_gross;
   }
 
   async signRequest(data: SignRequestDTO, user: UserEntity) {
@@ -292,12 +326,13 @@ export class ApproversService {
       this.reimbursementQueueClient.emit('send_email', {
         email: data.new_approver_email,
         subject: 'Reimbursement request re-route for approval',
-        body: `<div>
-          <p>Request ID: ${request.rid}</p>
-          <p>Requestor: ${request.user.work_email}</p>
-          <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
-          <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
-        </div>`,
+        body: `
+          <div>
+            <p>Request ID: ${request.rid}</p>
+            <p>Requestor: ${request.user.work_email}</p>
+            <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+            <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
+          </div>`,
       });
 
       await this.prisma.reimbursement.update({
@@ -403,12 +438,13 @@ export class ApproversService {
       this.reimbursementQueueClient.emit('send_email', {
         email: data.new_approver_email,
         subject: 'Reimbursement request needs your approval',
-        body: `<div>
-          <p>Request ID: ${request.rid}</p>
-          <p>Requestor: ${request.user.work_email}</p>
-          <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
-          <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
-        </div>`,
+        body: `
+          <div>
+            <p>Request ID: ${request.rid}</p>
+            <p>Requestor: ${request.user.work_email}</p>
+            <p>Total: PHP ${request.amount_to_be_reimbursed}</p>
+            <p>Check out <a href="https://reimbursement.kmc.solutions/finance/approvals">Reimbursement App</a> for more information.</p>
+          </div>`,
       });
     }
 

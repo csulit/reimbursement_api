@@ -1,3 +1,5 @@
+version: ${RELEASE_VERSION}
+
 services:
   auth:
     container_name: reimbursement_auth
@@ -52,13 +54,13 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev reimbursements
-      
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:latest
     ports:
       - '5672:5672'
-      
+
 networks:
   default:
     name: old-town-coffee
