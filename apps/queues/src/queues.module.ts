@@ -12,10 +12,7 @@ import { ReimbursementsQueuesService } from './services/reimbursements.queues.se
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        './apps/queues/queues.dev.env',
-        './apps/queues/queues.prod.env',
-      ],
+      envFilePath: ['./apps/queues/queues.dev.env'],
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         ERP_API_KEY: Joi.string().required(),

@@ -18,10 +18,7 @@ import { ReimbursementsService } from './services/reimbursements.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        './apps/reimbursements.dev.env',
-        './apps/reimbursements.prod.env',
-      ],
+      envFilePath: ['./apps/reimbursements.dev.env'],
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         REIMBURSEMENT_PORT: Joi.string().required(),

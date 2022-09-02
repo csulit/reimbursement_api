@@ -35,4 +35,4 @@ COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE 3003
 
-CMD ["node", "dist/apps/reimbursement-app-api/main"]
+CMD ["node", "dist/apps/reimbursements/main"]

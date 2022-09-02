@@ -33,4 +33,4 @@ COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["node", "dist/apps/reimbursement-app-api/main"]
+CMD ["node", "dist/apps/queues/main"]
