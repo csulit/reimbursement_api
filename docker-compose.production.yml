@@ -3,7 +3,7 @@ version: '3.8'
 services:
   auth:
     container_name: reimbursement_auth
-    image: reimbursement_auth:latest
+    image: reimbursement_auth:0.0.1
     build:
       dockerfile: ./apps/auth/Dockerfile
       target: production
@@ -19,7 +19,7 @@ services:
 
   queues:
     container_name: reimbursement_queues
-    image: reimbursement_queues:latest
+    image: reimbursement_queues:0.0.1
     build:
       dockerfile: ./apps/queues/Dockerfile
       target: production
@@ -35,7 +35,7 @@ services:
 
   reimbursements:
     container_name: reimbursement_api
-    image: reimbursement_api:latest
+    image: reimbursement_api:0.0.1
     build:
       dockerfile: ./apps/reimbursements/Dockerfile
       target: production
