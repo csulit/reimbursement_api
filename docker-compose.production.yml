@@ -1,9 +1,9 @@
-version: ${RELEASE_VERSION}
+version: '3.8'
 
 services:
   auth:
     container_name: reimbursement_auth
-    image: reimbursement_auth:${RELEASE_VERSION}
+    image: reimbursement_auth:latest
     build:
       dockerfile: ./apps/auth/Dockerfile
       target: production
@@ -11,7 +11,7 @@ services:
     ports:
       - 3002:3002
     env_file:
-      - ./apps/auth/auth.prod.env
+      - .env
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -19,13 +19,13 @@ services:
 
   queues:
     container_name: reimbursement_queues
-    image: reimbursement_queues:${RELEASE_VERSION}
+    image: reimbursement_queues:latest
     build:
       dockerfile: ./apps/queues/Dockerfile
       target: production
       context: .
     env_file:
-      - ./apps/queues/queues.prod.env
+      - .env
     depends_on:
       - auth
     volumes:
@@ -35,7 +35,7 @@ services:
 
   reimbursements:
     container_name: reimbursement_api
-    image: reimbursement_api:${RELEASE_VERSION}
+    image: reimbursement_api:latest
     build:
       dockerfile: ./apps/reimbursements/Dockerfile
       target: production
@@ -43,7 +43,7 @@ services:
     ports:
       - 3003:3003
     env_file:
-      - ./apps/reimbursements/reimbursements.prod.env
+      - .env
     depends_on:
       - auth
     volumes:

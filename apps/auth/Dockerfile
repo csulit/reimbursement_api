@@ -27,6 +27,8 @@ COPY prisma ./prisma/
 
 RUN npm install --omit=dev
 
+RUN npx prisma generate
+
 COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
