@@ -45,7 +45,7 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-  app.use(helmet.contentSecurityPolicy());
+  //app.use(helmet.contentSecurityPolicy());
   //app.use(helmet.crossOriginEmbedderPolicy());
   //app.use(helmet.crossOriginOpenerPolicy());
   //app.use(helmet.crossOriginResourcePolicy());
@@ -58,7 +58,7 @@ async function bootstrap() {
   app.use(helmet.noSniff());
   app.use(helmet.originAgentCluster());
   app.use(helmet.permittedCrossDomainPolicies());
-  app.use(helmet.referrerPolicy());
+  //app.use(helmet.referrerPolicy());
   app.use(helmet.xssFilter());
   app.use(compression());
 

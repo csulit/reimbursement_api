@@ -26,8 +26,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: '*',
-    allowedHeaders: '*',
+    origin: ['https://reimbursement.kmc.solutions'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     credentials: true,
   });
@@ -53,9 +52,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.use(helmet.contentSecurityPolicy());
-  //app.use(helmet.crossOriginEmbedderPolicy());
-  //app.use(helmet.crossOriginOpenerPolicy());
-  //app.use(helmet.crossOriginResourcePolicy());
+  app.use(helmet.crossOriginEmbedderPolicy());
+  app.use(helmet.crossOriginOpenerPolicy());
+  app.use(helmet.crossOriginResourcePolicy());
   app.use(helmet.dnsPrefetchControl());
   app.use(helmet.expectCt());
   app.use(helmet.frameguard());
