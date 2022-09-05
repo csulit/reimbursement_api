@@ -7,7 +7,7 @@ import {
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from 'apps/auth/src/users/users.module';
-import * as Joi from 'joi';
+// import * as Joi from 'joi';
 import { RMQ_REIMBURSEMENT_QUEUE_SERVICE } from './constant';
 import { ReimbursementsController } from './reimbursements.controller';
 import { ApproversService } from './services/approvers.service';
@@ -18,12 +18,12 @@ import { ReimbursementsService } from './services/reimbursements.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['./apps/reimbursements.dev.env'],
-      validationSchema: Joi.object({
-        DATABASE_URL: Joi.string().required(),
-        REIMBURSEMENT_PORT: Joi.string().required(),
-        RABBIT_MQ_URI: Joi.string().required(),
-      }),
+      // envFilePath: ['./apps/reimbursements.dev.env'],
+      // validationSchema: Joi.object({
+      //   DATABASE_URL: Joi.string().required(),
+      //   REIMBURSEMENT_PORT: Joi.string().required(),
+      //   RABBIT_MQ_URI: Joi.string().required(),
+      // }),
     }),
     RabbitMqModule.register({
       name: RMQ_REIMBURSEMENT_QUEUE_SERVICE,
