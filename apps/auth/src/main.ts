@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { RmqOptions } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
@@ -11,7 +12,7 @@ import * as helmet from 'helmet';
 import { AuthModule } from './auth.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AuthModule);
+  const app = await NestFactory.create<NestExpressApplication>(AuthModule);
   const rabbitMqService = app.get<RabbitMqService>(RabbitMqService);
   const configService = app.get(ConfigService);
 
@@ -25,15 +26,50 @@ async function bootstrap() {
     }),
   );
 
+  const whitelist = [
+    'http://reimbursement.kmc.solutions',
+    'https://reimbursement.kmc.solutions',
+  ];
+
   app.enableCors({
-    origin: ['https://reimbursement.kmc.solutions'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    origin: function (origin, callback) {
+      console.log(origin);
+
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
     credentials: true,
   });
+
+  app.use(cookieParser());
+  app.use(helmet.contentSecurityPolicy());
+  // app.use(helmet.crossOriginEmbedderPolicy());
+  // app.use(helmet.crossOriginOpenerPolicy());
+  // app.use(helmet.crossOriginResourcePolicy());
+  app.use(helmet.dnsPrefetchControl());
+  app.use(helmet.expectCt());
+  app.use(helmet.frameguard());
+  app.use(helmet.hidePoweredBy());
+  app.use(helmet.hsts());
+  app.use(helmet.ieNoOpen());
+  app.use(helmet.noSniff());
+  app.use(helmet.originAgentCluster());
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.use(helmet.referrerPolicy());
+  app.use(helmet.xssFilter());
+  app.use(compression());
 
   app.connectMicroservice<RmqOptions>(
     rabbitMqService.getOptions(RMQ_REIMBURSEMENT_AUTH_SERVICE, true),
   );
+
+  const prismaClientService: PrismaService = app.get(PrismaService);
+
+  prismaClientService.enableShutdownHooks(app);
 
   const config = new DocumentBuilder()
     .setTitle('Reimbursement API')
@@ -49,28 +85,6 @@ async function bootstrap() {
       operationsSorter: 'alpha',
     },
   });
-
-  app.use(cookieParser());
-  app.use(helmet.contentSecurityPolicy());
-  app.use(helmet.crossOriginEmbedderPolicy());
-  app.use(helmet.crossOriginOpenerPolicy());
-  app.use(helmet.crossOriginResourcePolicy());
-  app.use(helmet.dnsPrefetchControl());
-  app.use(helmet.expectCt());
-  app.use(helmet.frameguard());
-  app.use(helmet.hidePoweredBy());
-  app.use(helmet.hsts());
-  app.use(helmet.ieNoOpen());
-  app.use(helmet.noSniff());
-  app.use(helmet.originAgentCluster());
-  app.use(helmet.permittedCrossDomainPolicies());
-  app.use(helmet.referrerPolicy());
-  app.use(helmet.xssFilter());
-  app.use(compression());
-
-  const prismaClientService: PrismaService = app.get(PrismaService);
-
-  prismaClientService.enableShutdownHooks(app);
 
   await app.startAllMicroservices();
 

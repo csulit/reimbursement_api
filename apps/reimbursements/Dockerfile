@@ -5,8 +5,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm i --location=global npm@latest
-
 RUN npm install
 
 COPY . .
