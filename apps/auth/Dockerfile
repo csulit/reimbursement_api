@@ -11,7 +11,7 @@ COPY . .
 
 RUN npx prisma generate
 
-RUN npm run build
+RUN npm run build auth
 
 FROM node:16-alpine3.16 As production
 

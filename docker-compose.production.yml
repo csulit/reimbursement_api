@@ -15,7 +15,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: node dist/apps/auth/main
+    command: npm run start:prod auth
 
   queues:
     container_name: reimbursement_queues
@@ -31,7 +31,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: node dist/apps/queues/main
+    command: npm run start:prod queues
 
   reimbursements:
     container_name: reimbursement_api
@@ -49,7 +49,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: node dist/apps/reimbursements/main
+    command: npm run start:prod reimbursements
 networks:
   default:
     name: nginx-proxy-manager_default
