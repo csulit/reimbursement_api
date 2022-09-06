@@ -27,29 +27,27 @@ async function bootstrap() {
   );
 
   const whitelist = [
+    'http://localhost:8585',
     'http://reimbursement.kmc.solutions',
     'https://reimbursement.kmc.solutions',
   ];
 
   app.enableCors({
     origin: function (origin, callback) {
-      console.log(origin);
-
       if (!origin || whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
     credentials: true,
   });
 
   app.use(cookieParser());
   app.use(helmet.contentSecurityPolicy());
-  // app.use(helmet.crossOriginEmbedderPolicy());
-  // app.use(helmet.crossOriginOpenerPolicy());
-  // app.use(helmet.crossOriginResourcePolicy());
+  app.use(helmet.crossOriginEmbedderPolicy());
+  app.use(helmet.crossOriginOpenerPolicy());
+  app.use(helmet.crossOriginResourcePolicy());
   app.use(helmet.dnsPrefetchControl());
   app.use(helmet.expectCt());
   app.use(helmet.frameguard());

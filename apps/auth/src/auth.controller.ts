@@ -47,7 +47,12 @@ export class AuthController {
   // No body payload because data will be gather in erp
   @UseGuards(JwtAuthGuard)
   @Patch('user/:id')
-  updateUser(@Query('id', new ParseUUIDPipe()) id: string) {
+  updateUser(
+    @Req() request: Request,
+    @Query('id', new ParseUUIDPipe()) id: string,
+  ) {
+    console.log(request.headers);
+
     return this.userService.updateUser(id);
   }
 
@@ -57,11 +62,9 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.getToken(
-      query.email,
-      request.header('api_key'),
-      response,
-    );
+    console.log(request.headers);
+
+    return this.authService.getToken(query.email, response);
   }
 
   @MessagePattern('validate_user')

@@ -31,7 +31,7 @@ export class ReimbursementsService {
     const { page, limit, skip } = paginate(filter?.page, filter?.limit);
 
     const reimbursementWhereInput: Prisma.ReimbursementWhereInput = {
-      user: { id: user?.profile.is_approver ? undefined : user.id },
+      user: { id: user?.profile?.is_approver ? undefined : user.id },
       rid: filter?.rid,
       ap_no: filter?.ap_no,
       status: filter?.status,

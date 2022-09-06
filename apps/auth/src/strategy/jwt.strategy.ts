@@ -14,6 +14,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: any) => {
+          console.log('-----JWT-STRATEGY-AUTH-----');
+          console.log(request);
+
           return request?.Authentication;
         },
       ]),

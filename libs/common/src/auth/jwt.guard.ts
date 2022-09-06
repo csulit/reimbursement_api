@@ -46,9 +46,13 @@ export class JwtAuthGuard implements CanActivate {
 
     if (execType === 'rpc') {
       authentication = context.switchToRpc().getData().Authentication;
+      console.log('-----RPC-----');
+      console.log(context.switchToRpc().getData());
     } else if (execType === 'http') {
       authentication = context.switchToHttp().getRequest()
         .cookies?.Authentication;
+      console.log('-----HTTP-----');
+      console.log(context.switchToHttp().getRequest());
     }
 
     if (!authentication) {
